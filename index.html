@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LeetCode">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>LeetCode Tracker</title>
+<style>
+:root{
+  --bg:#0d1117; --bg2:#161b22; --bg3:#1c232d; --line:#2a3340; --line2:#3a4654;
+  --txt:#e6edf3; --mut:#8b98a9; --mut2:#6b7787;
+  --acc:#7c5cff; --acc2:#9d86ff; --accbg:rgba(124,92,255,.14);
+  --easy:#3fb950; --med:#d29922; --hard:#f85149;
+  --due:#f0883e; --ok:#3fb950; --weak:#f85149; --shadow:0 8px 30px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{overscroll-behavior-y:none}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer} a{color:var(--acc2);text-decoration:none} a:hover{text-decoration:underline}
+::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;padding:0 22px;height:58px;background:rgba(13,17,23,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-weight:700;font-size:16px;letter-spacing:.2px;white-space:nowrap}
+.brand .bolt{color:var(--acc2)} .brand .user{color:var(--mut);font-weight:500;font-size:12px;margin-left:6px}
+.tabs{display:flex;gap:2px;margin-left:4px;flex-wrap:wrap}
+.tab{background:none;border:none;color:var(--mut);padding:8px 12px;border-radius:8px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--txt);background:var(--bg2)} .tab.active{color:var(--txt);background:var(--accbg)}
+.spacer{flex:1}
+.ghost{background:var(--bg2);border:1px solid var(--line);color:var(--mut);padding:7px 11px;border-radius:8px;font-size:12.5px;font-weight:600}
+.ghost:hover{color:var(--txt);border-color:var(--line2)}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;font-size:11px;font-weight:700;background:var(--due);color:#1a1206}
+.badge.hide{display:none} .badge.acc{background:var(--acc);color:#fff}
+main{max-width:1080px;margin:0 auto;padding:26px 22px 80px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:18px}
+.h{font-size:18px;font-weight:700;margin:0 0 2px}
+.sub{color:var(--mut);font-size:13px;margin:0 0 18px}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin:30px 0 12px;display:flex;align-items:center;gap:8px}
+.pill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;border:1px solid var(--line2);color:var(--mut)}
+.dashhead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.dashhead .lh{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.listsel{background:var(--bg2);border:1px solid var(--line2);color:var(--txt);font-weight:700;font-size:14px;padding:9px 13px;border-radius:10px;outline:none;cursor:pointer}
+.listsel:focus{border-color:var(--acc)}
+.lifebadge{display:inline-flex;align-items:center;gap:7px;background:var(--accbg);border:1px solid rgba(124,92,255,.3);color:var(--acc2);font-weight:800;font-size:14px;padding:8px 14px;border-radius:22px}
+.lifebadge .ln{color:var(--mut);font-weight:600;font-size:12px}
+.syncbanner{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,var(--accbg),rgba(124,92,255,.02));border:1px solid rgba(124,92,255,.3);border-radius:12px;padding:13px 16px;margin:0 0 18px}
+.syncbanner .bt{flex:1;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+.stat .n{font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.stat .l{color:var(--mut);font-size:12.5px;font-weight:600;margin-top:7px}
+.stat .accent{position:absolute;right:-10px;top:-10px;font-size:64px;opacity:.07}
+.stat.due .n{color:var(--due)} .stat.weak .n{color:var(--weak)} .stat.streak .n{color:var(--acc2)} .stat.solved .n{color:var(--ok)}
+.hero{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:center;margin-top:14px}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ring{position:relative;width:180px;height:180px}
+.ring svg{transform:rotate(-90deg)}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .mid .big{font-size:38px;font-weight:800;letter-spacing:-1px}
+.ring .mid .small{color:var(--mut);font-size:12px;font-weight:600}
+.bignum{text-align:center} .bignum .bn{font-size:52px;font-weight:800;letter-spacing:-2px;color:var(--ok)} .bignum .bl{color:var(--mut);font-size:13px;font-weight:600}
+.diffbars{display:flex;flex-direction:column;gap:14px}
+.diffrow{display:flex;align-items:center;gap:12px}
+.diffrow .lab{width:64px;font-size:13px;font-weight:700}
+.diffrow .lab.Easy{color:var(--easy)} .diffrow .lab.Medium{color:var(--med)} .diffrow .lab.Hard{color:var(--hard)}
+.bar{flex:1;height:9px;background:var(--bg3);border-radius:6px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:6px}
+.diffrow .cnt{width:66px;text-align:right;color:var(--mut);font-size:12.5px;font-variant-numeric:tabular-nums}
+.patgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.patcard{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:13px 15px;cursor:pointer;transition:border-color .15s}
+.patcard:hover{border-color:var(--acc)}
+.patcard .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.patcard .name{font-weight:700;font-size:13.5px} .patcard .frac{color:var(--mut);font-size:12px;font-variant-numeric:tabular-nums} .patcard.done .frac{color:var(--ok)}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+.filters input[type=text],.filters select{background:var(--bg2);border:1px solid var(--line);color:var(--txt);padding:8px 11px;border-radius:9px;font-size:13px;outline:none}
+.filters input[type=text]{min-width:210px} .filters input:focus,.filters select:focus{border-color:var(--acc)}
+.grouphdr{display:flex;align-items:center;gap:10px;margin:22px 0 9px;font-weight:700;font-size:14px}
+.grouphdr .gfrac{color:var(--mut);font-size:12px;font-weight:600}
+.grouphdr .gbar{flex:1;max-width:160px;height:6px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.grouphdr .gbar>i{display:block;height:100%;background:var(--acc);border-radius:4px}
+.row{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;margin-bottom:7px;cursor:pointer;transition:border-color .12s,background .12s}
+.row:hover{border-color:var(--line2);background:var(--bg3)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--mut2)}
+.dot.attempted{background:var(--med)} .dot.solved{background:var(--ok)}
+.row .nm{font-weight:600;font-size:13.5px;flex-shrink:0}
+.row .trig{color:var(--mut);font-size:12px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.row .meta{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.tag{font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;white-space:nowrap}
+.tag.Easy{color:var(--easy);background:rgba(63,185,80,.12)} .tag.Medium{color:var(--med);background:rgba(210,153,34,.12)} .tag.Hard{color:var(--hard);background:rgba(248,81,73,.12)}
+.tag.q-clean{color:var(--ok);background:rgba(63,185,80,.12)} .tag.q-scrappy{color:var(--med);background:rgba(210,153,34,.12)} .tag.q-missed{color:var(--hard);background:rgba(248,81,73,.12)}
+.tag.due{color:var(--due);background:rgba(240,136,62,.14)} .tag.soon{color:var(--mut);background:var(--bg3)} .tag.note{color:var(--acc2);background:var(--accbg)}
+.tag.l75{color:#58a6ff;background:rgba(88,166,255,.12)}
+.ext{color:var(--mut2);font-size:13px} .ext:hover{color:var(--acc2);text-decoration:none}
+.empty{text-align:center;padding:48px 20px;color:var(--mut)} .empty .em{font-size:40px;margin-bottom:10px}
+.qcard{display:flex;align-items:center;gap:14px;padding:15px 17px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;margin-bottom:9px}
+.qcard.over{border-left:3px solid var(--due)} .qcard .info{flex:1;min-width:0}
+.qcard .info .t{font-weight:700;font-size:14px} .qcard .info .d{color:var(--mut);font-size:12px;margin-top:3px}
+.qcard .when{font-size:12px;font-weight:700;color:var(--due);white-space:nowrap}
+.btn{background:var(--acc);border:none;color:#fff;padding:8px 15px;border-radius:9px;font-weight:700;font-size:13px} .btn:hover{background:var(--acc2)}
+.btn.sm{padding:6px 12px;font-size:12.5px} .btn.ghostbtn{background:var(--bg3);color:var(--txt);border:1px solid var(--line2)} .btn.ghostbtn:hover{background:var(--line)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:100;overflow:auto}
+.modal-backdrop.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--line2);border-radius:16px;width:100%;max-width:660px;box-shadow:var(--shadow);overflow:hidden;animation:pop .14s ease}
+@keyframes pop{from{transform:translateY(8px) scale(.99);opacity:0}to{transform:none;opacity:1}}
+.mhead{padding:20px 22px 16px;border-bottom:1px solid var(--line);position:relative}
+.mhead .x{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--mut);font-size:22px;line-height:1} .mhead .x:hover{color:var(--txt)}
+.mhead h2{margin:0 0 9px;font-size:19px;padding-right:30px} .mhead .row2{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.mbody{padding:18px 22px 22px;display:flex;flex-direction:column;gap:18px;max-height:74vh;overflow:auto}
+.fieldlabel{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ob{border:1px solid var(--line2);background:var(--bg3);border-radius:11px;padding:12px 8px;text-align:center;transition:.12s} .ob:hover{transform:translateY(-1px)}
+.ob .ic{font-size:18px} .ob .nm{font-weight:700;font-size:13px;margin-top:3px} .ob .sub{font-size:10.5px;color:var(--mut);margin-top:2px;font-weight:600}
+.ob.miss:hover{border-color:var(--hard);background:rgba(248,81,73,.1)} .ob.scr:hover{border-color:var(--med);background:rgba(210,153,34,.1)} .ob.cln:hover{border-color:var(--ok);background:rgba(63,185,80,.1)}
+textarea,.modal input[type=text],.modal input[type=password],.modal input[type=date],.modal select{width:100%;background:var(--bg);border:1px solid var(--line2);color:var(--txt);border-radius:9px;padding:10px 12px;font-size:13.5px;font-family:inherit;outline:none;resize:vertical}
+textarea:focus,.modal input:focus,.modal select:focus{border-color:var(--acc)}
+.trigbox{background:var(--accbg);border:1px solid rgba(124,92,255,.3)} .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.nextline{font-size:12.5px;color:var(--mut);margin-top:9px} .nextline b{color:var(--acc2)}
+.logtable{width:100%;border-collapse:collapse;font-size:12.5px}
+.logtable th{text-align:left;color:var(--mut);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+.logtable td{padding:7px 8px;border-bottom:1px solid var(--line)}
+.logtable .o-clean{color:var(--ok);font-weight:700} .logtable .o-scrappy{color:var(--med);font-weight:700} .logtable .o-missed{color:var(--hard);font-weight:700}
+.hintbox{font-size:12.5px;color:var(--mut);background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.syncdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mut2);margin-right:6px;vertical-align:middle;flex:none}
+.syncdot.ok{background:var(--ok)} .syncdot.busy{background:var(--due);animation:sdp 1s ease-in-out infinite} .syncdot.err{background:var(--hard)}
+@keyframes sdp{50%{opacity:.3}}
+code{font-family:ui-monospace,Menlo,monospace;font-size:.92em;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.minor{display:flex;gap:10px;align-items:center;flex-wrap:wrap} .minor label{font-size:12px;color:var(--mut);font-weight:600}
+.helps{display:flex;gap:8px;flex-wrap:wrap}
+.help{border:1px solid var(--line2);background:var(--bg3);color:var(--mut);border-radius:20px;padding:6px 13px;font-size:12.5px;font-weight:700}
+.help.on{border-color:var(--acc);background:var(--accbg);color:var(--acc2)}
+.timer{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.timer .tdisp{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.5px;min-width:74px}
+.timer .tbtn{background:var(--bg3);border:1px solid var(--line2);color:var(--txt);border-radius:8px;padding:6px 11px;font-weight:700;font-size:12.5px} .timer .tbtn:hover{border-color:var(--acc)}
+.tnudge{color:var(--due);font-weight:700;font-size:12.5px} .tnudge.flash{animation:blink 1s ease infinite} @keyframes blink{50%{opacity:.4}}
+.floor{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+.floor td{border:1px solid var(--line);padding:7px 10px}
+.floor td:first-child{color:var(--txt);font-weight:700;white-space:nowrap;width:40%} .floor td:last-child{color:var(--acc2);font-family:ui-monospace,Menlo,monospace}
+details.floorbox{background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:4px 12px}
+details.floorbox summary{cursor:pointer;font-weight:700;font-size:12.5px;color:var(--txt);padding:7px 0;list-style:none} details.floorbox summary::-webkit-details-marker{display:none}
+details.floorbox summary:before{content:"▸ ";color:var(--acc2)} details.floorbox[open] summary:before{content:"▾ "}
+.drillbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.flash{background:var(--bg2);border:1px solid var(--line2);border-radius:16px;padding:34px 28px;text-align:center;max-width:620px;margin:8px auto;box-shadow:var(--shadow)}
+.flash .fq{font-size:13px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px}
+.flash .fname{font-size:26px;font-weight:800;letter-spacing:-.4px;margin-bottom:12px}
+.flash .frow{display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.flash .ans{text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.flash .ans .al{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--acc2);margin-bottom:6px}
+.flash .ans .av{font-size:15px;line-height:1.6;white-space:pre-wrap} .flash .ans .av.empty{color:var(--mut2);font-style:italic}
+.drillbtns{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.dbtn{border:none;border-radius:11px;padding:13px 26px;font-weight:800;font-size:14px;color:#fff} .dbtn.no{background:var(--hard)} .dbtn.no:hover{filter:brightness(1.1)} .dbtn.yes{background:var(--ok)} .dbtn.yes:hover{filter:brightness(1.1)}
+.dprog{color:var(--mut);font-size:12.5px;font-weight:700}
+.libitem{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .12s} .libitem:hover{border-color:var(--acc)}
+.libitem .lt{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap} .libitem .lt .lname{font-weight:700;font-size:14px}
+.libitem .ltrig{background:var(--accbg);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:8px 12px;font-size:13px;margin-bottom:6px}
+.libitem .lnotes{color:var(--mut);font-size:12.5px;white-space:pre-wrap;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ins{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.insbox{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.insbox h4{margin:0 0 12px;font-size:13px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.forecast{display:flex;align-items:flex-end;gap:8px;height:90px}
+.fday{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.fday .fbar{width:100%;max-width:30px;background:var(--acc);border-radius:5px 5px 0 0;min-height:3px} .fday .fbar.today{background:var(--due)}
+.fday .fn{font-size:11px;font-weight:700;color:var(--mut)} .fday .fc{font-size:11px;font-weight:800}
+.indep{display:flex;align-items:center;gap:14px}
+.indep .gring{position:relative;width:84px;height:84px;flex-shrink:0} .indep .gmid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+.weaklist{display:flex;flex-direction:column;gap:9px}
+.weakrow{display:flex;align-items:center;gap:10px;font-size:13px} .weakrow .wn{flex:1;font-weight:600}
+.weakrow .wbar{width:90px;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden} .weakrow .wbar>i{display:block;height:100%;background:var(--hard);border-radius:4px}
+.weakrow .wv{color:var(--mut);font-size:11.5px;width:60px;text-align:right}
+.method{max-width:760px}
+.method h2{font-size:17px;margin:26px 0 8px} .method h1{font-size:22px;margin:0 0 6px}
+.method p,.method li{color:#c9d4e0;font-size:14px}
+.method blockquote{border-left:3px solid var(--acc);margin:14px 0;padding:6px 16px;color:var(--mut);background:var(--bg2);border-radius:0 8px 8px 0}
+.method code{background:var(--bg3);padding:2px 6px;border-radius:5px;font-size:12.5px;color:var(--acc2)}
+.method table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+.method th,.method td{border:1px solid var(--line);padding:8px 11px;text-align:left} .method th{background:var(--bg2);color:var(--mut)} .method td:last-child{font-family:ui-monospace,Menlo,monospace;color:var(--acc2)}
+.loop{counter-reset:s;list-style:none;padding:0} .loop li{position:relative;padding:10px 0 10px 44px;border-bottom:1px solid var(--line)}
+.loop li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:10px;width:28px;height:28px;background:var(--accbg);color:var(--acc2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr}.patgrid{grid-template-columns:1fr}.ins{grid-template-columns:1fr}main{padding:18px 14px 60px}}
+
+/* ---------------- phone layout ---------------- */
+@media(max-width:720px){
+  .topbar{height:auto;min-height:0;padding:calc(7px + env(safe-area-inset-top)) 10px 0;gap:7px;row-gap:7px;align-items:center}
+  .brand{flex:1;min-width:0;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;order:1}
+  .brand .bn2,.brand .user{display:none}
+  .spacer{display:none}
+  #cloudBtn,#syncBtn,#exportBtn,#importBtn{order:2;padding:8px 9px;font-size:11.5px;min-height:36px}
+  #cloudBtn #syncLbl{display:none}
+  #syncBtn{font-size:0;padding:8px 10px}
+  #syncBtn::before{content:"\21BB";font-size:14px}
+  .tabs{order:3;flex-basis:100%;width:100%;margin:0;flex-wrap:nowrap;overflow-x:auto;gap:2px;padding:0 0 5px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;min-height:40px;padding:9px 13px;font-size:13.5px}
+
+  main{max-width:none;padding:16px 12px calc(64px + env(safe-area-inset-bottom))}
+  body{font-size:15px}
+
+  .dashhead{margin-bottom:12px}
+  .listsel{font-size:16px;padding:10px 12px;flex:1;min-width:0}
+  .lifebadge{font-size:13px;padding:7px 12px}
+
+  .hero{grid-template-columns:1fr;gap:18px;margin-top:12px}
+  .ring{width:158px;height:158px}
+  .ring .mid .big{font-size:33px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat{padding:13px 14px}
+  .stat .n{font-size:25px}
+  .stat .l{font-size:11.5px;margin-top:5px}
+  .stat .accent{font-size:52px}
+  .patgrid{grid-template-columns:1fr}
+  .ins{grid-template-columns:1fr}
+  .card{padding:15px}
+  .section-title{margin:24px 0 10px}
+
+  /* iOS zooms the page when a control smaller than 16px gets focus */
+  .filters{gap:8px}
+  .filters input[type=text]{min-width:0;flex:1 1 100%;width:100%;font-size:16px;padding:10px 12px}
+  .filters select{flex:1 1 calc(50% - 4px);min-width:0;font-size:16px;padding:10px 12px}
+
+  .grouphdr{margin:20px 0 8px}
+  .grouphdr .gbar{max-width:none}
+
+  .row{flex-wrap:wrap;padding:12px 13px;gap:7px;min-height:46px}
+  .row .nm{flex:1 1 auto;min-width:0;flex-shrink:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .trig{order:9;flex:1 1 100%;min-width:100%;white-space:normal;font-size:12px;line-height:1.45}
+  .row .meta{margin-left:auto;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+  .qcard{flex-wrap:wrap;gap:10px;padding:14px}
+  .qcard .info{flex:1 1 100%;order:2}
+  .qcard .when{order:3}
+  .qcard .btn{order:4;margin-left:auto;min-height:38px}
+
+  .btn{min-height:40px;padding:10px 15px}
+  .btn.sm{min-height:34px;padding:8px 12px}
+  .ghost{min-height:36px}
+
+  .flash{padding:26px 18px}
+  .flash .fname{font-size:21px}
+
+  /* modal becomes a bottom sheet */
+  .modal-backdrop{padding:0;align-items:flex-end}
+  .modal{max-width:none;width:100%;border-radius:18px 18px 0 0;max-height:93vh;display:flex;flex-direction:column}
+  .mhead{padding:17px 16px 14px;flex:none}
+  .mhead h2{font-size:17px}
+  .mhead .x{top:13px;right:14px;font-size:26px;padding:4px 8px}
+  .mbody{max-height:none;flex:1 1 auto;padding:16px 16px calc(20px + env(safe-area-inset-bottom));gap:15px}
+  textarea,.modal input[type=text],.modal input[type=password],.modal input[type=date],.modal select{font-size:16px}
+  .floor td{padding:6px 8px;font-size:12px}
+}
+@media(max-width:360px){
+  .stats{grid-template-columns:1fr}
+  #exportBtn,#importBtn{padding:8px 7px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><span class="bolt">&#9889;</span> LeetCode<span class="bn2"> Tracker</span></div>
+  <nav class="tabs">
+    <button class="tab active" data-view="dashboard">Dashboard</button>
+    <button class="tab" data-view="review">Review <span class="badge hide" id="dueBadge">0</span></button>
+    <button class="tab" data-view="problems">Problems</button>
+    <button class="tab" data-view="drill">Drill <span class="badge acc hide" id="drillBadge">0</span></button>
+    <button class="tab" data-view="library">Library</button>
+    <button class="tab" data-view="method">Method</button>
+  </nav>
+  <div class="spacer"></div>
+  <button class="ghost" id="cloudBtn" title="Cloud sync"><span class="syncdot" id="syncDot"></span><span id="syncLbl">Cloud</span></button>
+  <button class="ghost" id="syncBtn" style="border-color:var(--acc);color:var(--acc2)">&#10227; LeetCode</button>
+  <button class="ghost" id="exportBtn">Export</button>
+  <button class="ghost" id="importBtn">Import</button>
+</div>
+<main id="app"></main>
+<div class="modal-backdrop hidden" id="modal"></div>
+<input type="file" id="importFile" accept="application/json" hidden>
+
+<script src="synced.js"></script>
+<script>
+const CAT250 = [{"name": "Concatenation of Array", "slug": "concatenation-of-array", "url": "https://leetcode.com/problems/concatenation-of-array/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 0, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Contains Duplicate", "slug": "contains-duplicate", "url": "https://leetcode.com/problems/contains-duplicate/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 1, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Valid Anagram", "slug": "valid-anagram", "url": "https://leetcode.com/problems/valid-anagram/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 2, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Two Sum", "slug": "two-sum", "url": "https://leetcode.com/problems/two-sum/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 3, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Longest Common Prefix", "slug": "longest-common-prefix", "url": "https://leetcode.com/problems/longest-common-prefix/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 4, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Group Anagrams", "slug": "group-anagrams", "url": "https://leetcode.com/problems/group-anagrams/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 5, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Remove Element", "slug": "remove-element", "url": "https://leetcode.com/problems/remove-element/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 6, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Majority Element", "slug": "majority-element", "url": "https://leetcode.com/problems/majority-element/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 7, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Design HashSet", "slug": "design-hashset", "url": "https://leetcode.com/problems/design-hashset/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 8, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Design HashMap", "slug": "design-hashmap", "url": "https://leetcode.com/problems/design-hashmap/", "difficulty": "Easy", "diffRank": 1, "pattern": "Arrays & Hashing", "order": 1, "seq": 9, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Sort an Array", "slug": "sort-an-array", "url": "https://leetcode.com/problems/sort-an-array/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 10, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Sort Colors", "slug": "sort-colors", "url": "https://leetcode.com/problems/sort-colors/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 11, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Top K Frequent Elements", "slug": "top-k-frequent-elements", "url": "https://leetcode.com/problems/top-k-frequent-elements/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 12, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Encode and Decode Strings", "slug": "encode-and-decode-strings", "url": "https://leetcode.com/problems/encode-and-decode-strings/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 13, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Range Sum Query 2D Immutable", "slug": "range-sum-query-2d-immutable", "url": "https://leetcode.com/problems/range-sum-query-2d-immutable/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 14, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Product of Array Except Self", "slug": "product-of-array-except-self", "url": "https://leetcode.com/problems/product-of-array-except-self/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 15, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Valid Sudoku", "slug": "valid-sudoku", "url": "https://leetcode.com/problems/valid-sudoku/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 16, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Longest Consecutive Sequence", "slug": "longest-consecutive-sequence", "url": "https://leetcode.com/problems/longest-consecutive-sequence/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 17, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Best Time to Buy And Sell Stock II", "slug": "best-time-to-buy-and-sell-stock-ii", "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 18, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Majority Element II", "slug": "majority-element-ii", "url": "https://leetcode.com/problems/majority-element-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 19, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Subarray Sum Equals K", "slug": "subarray-sum-equals-k", "url": "https://leetcode.com/problems/subarray-sum-equals-k/", "difficulty": "Medium", "diffRank": 2, "pattern": "Arrays & Hashing", "order": 1, "seq": 20, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "First Missing Positive", "slug": "first-missing-positive", "url": "https://leetcode.com/problems/first-missing-positive/", "difficulty": "Hard", "diffRank": 3, "pattern": "Arrays & Hashing", "order": 1, "seq": 21, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Reverse String", "slug": "reverse-string", "url": "https://leetcode.com/problems/reverse-string/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 2, "seq": 22, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Valid Palindrome", "slug": "valid-palindrome", "url": "https://leetcode.com/problems/valid-palindrome/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 2, "seq": 23, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Valid Palindrome II", "slug": "valid-palindrome-ii", "url": "https://leetcode.com/problems/valid-palindrome-ii/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 2, "seq": 24, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Merge Strings Alternately", "slug": "merge-strings-alternately", "url": "https://leetcode.com/problems/merge-strings-alternately/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 2, "seq": 25, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Merge Sorted Array", "slug": "merge-sorted-array", "url": "https://leetcode.com/problems/merge-sorted-array/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 2, "seq": 26, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Remove Duplicates From Sorted Array", "slug": "remove-duplicates-from-sorted-array", "url": "https://leetcode.com/problems/remove-duplicates-from-sorted-array/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 2, "seq": 27, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Two Sum II Input Array Is Sorted", "slug": "two-sum-ii-input-array-is-sorted", "url": "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/", "difficulty": "Medium", "diffRank": 2, "pattern": "Two Pointers", "order": 2, "seq": 28, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "3Sum", "slug": "3sum", "url": "https://leetcode.com/problems/3sum/", "difficulty": "Medium", "diffRank": 2, "pattern": "Two Pointers", "order": 2, "seq": 29, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "4Sum", "slug": "4sum", "url": "https://leetcode.com/problems/4sum/", "difficulty": "Medium", "diffRank": 2, "pattern": "Two Pointers", "order": 2, "seq": 30, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Rotate Array", "slug": "rotate-array", "url": "https://leetcode.com/problems/rotate-array/", "difficulty": "Medium", "diffRank": 2, "pattern": "Two Pointers", "order": 2, "seq": 31, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Container With Most Water", "slug": "container-with-most-water", "url": "https://leetcode.com/problems/container-with-most-water/", "difficulty": "Medium", "diffRank": 2, "pattern": "Two Pointers", "order": 2, "seq": 32, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Boats to Save People", "slug": "boats-to-save-people", "url": "https://leetcode.com/problems/boats-to-save-people/", "difficulty": "Medium", "diffRank": 2, "pattern": "Two Pointers", "order": 2, "seq": 33, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Trapping Rain Water", "slug": "trapping-rain-water", "url": "https://leetcode.com/problems/trapping-rain-water/", "difficulty": "Hard", "diffRank": 3, "pattern": "Two Pointers", "order": 2, "seq": 34, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Contains Duplicate II", "slug": "contains-duplicate-ii", "url": "https://leetcode.com/problems/contains-duplicate-ii/", "difficulty": "Easy", "diffRank": 1, "pattern": "Sliding Window", "order": 3, "seq": 35, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Best Time to Buy And Sell Stock", "slug": "best-time-to-buy-and-sell-stock", "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/", "difficulty": "Easy", "diffRank": 1, "pattern": "Sliding Window", "order": 3, "seq": 36, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Longest Substring Without Repeating Characters", "slug": "longest-substring-without-repeating-characters", "url": "https://leetcode.com/problems/longest-substring-without-repeating-characters/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 3, "seq": 37, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Longest Repeating Character Replacement", "slug": "longest-repeating-character-replacement", "url": "https://leetcode.com/problems/longest-repeating-character-replacement/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 3, "seq": 38, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Permutation In String", "slug": "permutation-in-string", "url": "https://leetcode.com/problems/permutation-in-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 3, "seq": 39, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Minimum Size Subarray Sum", "slug": "minimum-size-subarray-sum", "url": "https://leetcode.com/problems/minimum-size-subarray-sum/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 3, "seq": 40, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Find K Closest Elements", "slug": "find-k-closest-elements", "url": "https://leetcode.com/problems/find-k-closest-elements/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 3, "seq": 41, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Minimum Window Substring", "slug": "minimum-window-substring", "url": "https://leetcode.com/problems/minimum-window-substring/", "difficulty": "Hard", "diffRank": 3, "pattern": "Sliding Window", "order": 3, "seq": 42, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Sliding Window Maximum", "slug": "sliding-window-maximum", "url": "https://leetcode.com/problems/sliding-window-maximum/", "difficulty": "Hard", "diffRank": 3, "pattern": "Sliding Window", "order": 3, "seq": 43, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Baseball Game", "slug": "baseball-game", "url": "https://leetcode.com/problems/baseball-game/", "difficulty": "Easy", "diffRank": 1, "pattern": "Stack", "order": 4, "seq": 44, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Valid Parentheses", "slug": "valid-parentheses", "url": "https://leetcode.com/problems/valid-parentheses/", "difficulty": "Easy", "diffRank": 1, "pattern": "Stack", "order": 4, "seq": 45, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Implement Stack Using Queues", "slug": "implement-stack-using-queues", "url": "https://leetcode.com/problems/implement-stack-using-queues/", "difficulty": "Easy", "diffRank": 1, "pattern": "Stack", "order": 4, "seq": 46, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Implement Queue using Stacks", "slug": "implement-queue-using-stacks", "url": "https://leetcode.com/problems/implement-queue-using-stacks/", "difficulty": "Easy", "diffRank": 1, "pattern": "Stack", "order": 4, "seq": 47, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Min Stack", "slug": "min-stack", "url": "https://leetcode.com/problems/min-stack/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 48, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Evaluate Reverse Polish Notation", "slug": "evaluate-reverse-polish-notation", "url": "https://leetcode.com/problems/evaluate-reverse-polish-notation/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 49, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Asteroid Collision", "slug": "asteroid-collision", "url": "https://leetcode.com/problems/asteroid-collision/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 50, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Daily Temperatures", "slug": "daily-temperatures", "url": "https://leetcode.com/problems/daily-temperatures/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 51, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Online Stock Span", "slug": "online-stock-span", "url": "https://leetcode.com/problems/online-stock-span/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 52, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Car Fleet", "slug": "car-fleet", "url": "https://leetcode.com/problems/car-fleet/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 53, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Simplify Path", "slug": "simplify-path", "url": "https://leetcode.com/problems/simplify-path/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 54, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Decode String", "slug": "decode-string", "url": "https://leetcode.com/problems/decode-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 4, "seq": 55, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Maximum Frequency Stack", "slug": "maximum-frequency-stack", "url": "https://leetcode.com/problems/maximum-frequency-stack/", "difficulty": "Hard", "diffRank": 3, "pattern": "Stack", "order": 4, "seq": 56, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Largest Rectangle In Histogram", "slug": "largest-rectangle-in-histogram", "url": "https://leetcode.com/problems/largest-rectangle-in-histogram/", "difficulty": "Hard", "diffRank": 3, "pattern": "Stack", "order": 4, "seq": 57, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Binary Search", "slug": "binary-search", "url": "https://leetcode.com/problems/binary-search/", "difficulty": "Easy", "diffRank": 1, "pattern": "Binary Search", "order": 5, "seq": 58, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Search Insert Position", "slug": "search-insert-position", "url": "https://leetcode.com/problems/search-insert-position/", "difficulty": "Easy", "diffRank": 1, "pattern": "Binary Search", "order": 5, "seq": 59, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Guess Number Higher Or Lower", "slug": "guess-number-higher-or-lower", "url": "https://leetcode.com/problems/guess-number-higher-or-lower/", "difficulty": "Easy", "diffRank": 1, "pattern": "Binary Search", "order": 5, "seq": 60, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Sqrt(x)", "slug": "sqrtx", "url": "https://leetcode.com/problems/sqrtx/", "difficulty": "Easy", "diffRank": 1, "pattern": "Binary Search", "order": 5, "seq": 61, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Search a 2D Matrix", "slug": "search-a-2d-matrix", "url": "https://leetcode.com/problems/search-a-2d-matrix/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 5, "seq": 62, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Koko Eating Bananas", "slug": "koko-eating-bananas", "url": "https://leetcode.com/problems/koko-eating-bananas/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 5, "seq": 63, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Capacity to Ship Packages Within D Days", "slug": "capacity-to-ship-packages-within-d-days", "url": "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 5, "seq": 64, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Find Minimum In Rotated Sorted Array", "slug": "find-minimum-in-rotated-sorted-array", "url": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 5, "seq": 65, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Search In Rotated Sorted Array", "slug": "search-in-rotated-sorted-array", "url": "https://leetcode.com/problems/search-in-rotated-sorted-array/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 5, "seq": 66, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Search In Rotated Sorted Array II", "slug": "search-in-rotated-sorted-array-ii", "url": "https://leetcode.com/problems/search-in-rotated-sorted-array-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 5, "seq": 67, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Time Based Key Value Store", "slug": "time-based-key-value-store", "url": "https://leetcode.com/problems/time-based-key-value-store/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 5, "seq": 68, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Split Array Largest Sum", "slug": "split-array-largest-sum", "url": "https://leetcode.com/problems/split-array-largest-sum/", "difficulty": "Hard", "diffRank": 3, "pattern": "Binary Search", "order": 5, "seq": 69, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Median of Two Sorted Arrays", "slug": "median-of-two-sorted-arrays", "url": "https://leetcode.com/problems/median-of-two-sorted-arrays/", "difficulty": "Hard", "diffRank": 3, "pattern": "Binary Search", "order": 5, "seq": 70, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Find in Mountain Array", "slug": "find-in-mountain-array", "url": "https://leetcode.com/problems/find-in-mountain-array/", "difficulty": "Hard", "diffRank": 3, "pattern": "Binary Search", "order": 5, "seq": 71, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Reverse Linked List", "slug": "reverse-linked-list", "url": "https://leetcode.com/problems/reverse-linked-list/", "difficulty": "Easy", "diffRank": 1, "pattern": "Linked List", "order": 6, "seq": 72, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Merge Two Sorted Lists", "slug": "merge-two-sorted-lists", "url": "https://leetcode.com/problems/merge-two-sorted-lists/", "difficulty": "Easy", "diffRank": 1, "pattern": "Linked List", "order": 6, "seq": 73, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Linked List Cycle", "slug": "linked-list-cycle", "url": "https://leetcode.com/problems/linked-list-cycle/", "difficulty": "Easy", "diffRank": 1, "pattern": "Linked List", "order": 6, "seq": 74, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Reorder List", "slug": "reorder-list", "url": "https://leetcode.com/problems/reorder-list/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 75, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Remove Nth Node From End of List", "slug": "remove-nth-node-from-end-of-list", "url": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 76, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Copy List With Random Pointer", "slug": "copy-list-with-random-pointer", "url": "https://leetcode.com/problems/copy-list-with-random-pointer/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 77, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Add Two Numbers", "slug": "add-two-numbers", "url": "https://leetcode.com/problems/add-two-numbers/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 78, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Find The Duplicate Number", "slug": "find-the-duplicate-number", "url": "https://leetcode.com/problems/find-the-duplicate-number/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 79, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Reverse Linked List II", "slug": "reverse-linked-list-ii", "url": "https://leetcode.com/problems/reverse-linked-list-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 80, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Design Circular Queue", "slug": "design-circular-queue", "url": "https://leetcode.com/problems/design-circular-queue/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 81, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "LRU Cache", "slug": "lru-cache", "url": "https://leetcode.com/problems/lru-cache/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 6, "seq": 82, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "LFU Cache", "slug": "lfu-cache", "url": "https://leetcode.com/problems/lfu-cache/", "difficulty": "Hard", "diffRank": 3, "pattern": "Linked List", "order": 6, "seq": 83, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Merge K Sorted Lists", "slug": "merge-k-sorted-lists", "url": "https://leetcode.com/problems/merge-k-sorted-lists/", "difficulty": "Hard", "diffRank": 3, "pattern": "Linked List", "order": 6, "seq": 84, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Reverse Nodes In K Group", "slug": "reverse-nodes-in-k-group", "url": "https://leetcode.com/problems/reverse-nodes-in-k-group/", "difficulty": "Hard", "diffRank": 3, "pattern": "Linked List", "order": 6, "seq": 85, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Binary Tree Inorder Traversal", "slug": "binary-tree-inorder-traversal", "url": "https://leetcode.com/problems/binary-tree-inorder-traversal/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 86, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Binary Tree Preorder Traversal", "slug": "binary-tree-preorder-traversal", "url": "https://leetcode.com/problems/binary-tree-preorder-traversal/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 87, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Binary Tree Postorder Traversal", "slug": "binary-tree-postorder-traversal", "url": "https://leetcode.com/problems/binary-tree-postorder-traversal/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 88, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Invert Binary Tree", "slug": "invert-binary-tree", "url": "https://leetcode.com/problems/invert-binary-tree/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 89, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Maximum Depth of Binary Tree", "slug": "maximum-depth-of-binary-tree", "url": "https://leetcode.com/problems/maximum-depth-of-binary-tree/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 90, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Diameter of Binary Tree", "slug": "diameter-of-binary-tree", "url": "https://leetcode.com/problems/diameter-of-binary-tree/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 91, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Balanced Binary Tree", "slug": "balanced-binary-tree", "url": "https://leetcode.com/problems/balanced-binary-tree/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 92, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Same Tree", "slug": "same-tree", "url": "https://leetcode.com/problems/same-tree/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 93, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Subtree of Another Tree", "slug": "subtree-of-another-tree", "url": "https://leetcode.com/problems/subtree-of-another-tree/", "difficulty": "Easy", "diffRank": 1, "pattern": "Trees", "order": 7, "seq": 94, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Lowest Common Ancestor of a Binary Search Tree", "slug": "lowest-common-ancestor-of-a-binary-search-tree", "url": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 95, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Insert into a Binary Search Tree", "slug": "insert-into-a-binary-search-tree", "url": "https://leetcode.com/problems/insert-into-a-binary-search-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 96, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Delete Node in a BST", "slug": "delete-node-in-a-bst", "url": "https://leetcode.com/problems/delete-node-in-a-bst/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 97, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Binary Tree Level Order Traversal", "slug": "binary-tree-level-order-traversal", "url": "https://leetcode.com/problems/binary-tree-level-order-traversal/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 98, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Binary Tree Right Side View", "slug": "binary-tree-right-side-view", "url": "https://leetcode.com/problems/binary-tree-right-side-view/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 99, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Construct Quad Tree", "slug": "construct-quad-tree", "url": "https://leetcode.com/problems/construct-quad-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 100, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Count Good Nodes In Binary Tree", "slug": "count-good-nodes-in-binary-tree", "url": "https://leetcode.com/problems/count-good-nodes-in-binary-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 101, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Validate Binary Search Tree", "slug": "validate-binary-search-tree", "url": "https://leetcode.com/problems/validate-binary-search-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 102, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Kth Smallest Element In a Bst", "slug": "kth-smallest-element-in-a-bst", "url": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 103, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Construct Binary Tree From Preorder And Inorder Traversal", "slug": "construct-binary-tree-from-preorder-and-inorder-traversal", "url": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 104, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "House Robber III", "slug": "house-robber-iii", "url": "https://leetcode.com/problems/house-robber-iii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 105, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Delete Leaves With a Given Value", "slug": "delete-leaves-with-a-given-value", "url": "https://leetcode.com/problems/delete-leaves-with-a-given-value/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trees", "order": 7, "seq": 106, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Binary Tree Maximum Path Sum", "slug": "binary-tree-maximum-path-sum", "url": "https://leetcode.com/problems/binary-tree-maximum-path-sum/", "difficulty": "Hard", "diffRank": 3, "pattern": "Trees", "order": 7, "seq": 107, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Serialize And Deserialize Binary Tree", "slug": "serialize-and-deserialize-binary-tree", "url": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/", "difficulty": "Hard", "diffRank": 3, "pattern": "Trees", "order": 7, "seq": 108, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Kth Largest Element In a Stream", "slug": "kth-largest-element-in-a-stream", "url": "https://leetcode.com/problems/kth-largest-element-in-a-stream/", "difficulty": "Easy", "diffRank": 1, "pattern": "Heap / Priority Queue", "order": 8, "seq": 109, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Last Stone Weight", "slug": "last-stone-weight", "url": "https://leetcode.com/problems/last-stone-weight/", "difficulty": "Easy", "diffRank": 1, "pattern": "Heap / Priority Queue", "order": 8, "seq": 110, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "K Closest Points to Origin", "slug": "k-closest-points-to-origin", "url": "https://leetcode.com/problems/k-closest-points-to-origin/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 111, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Kth Largest Element In An Array", "slug": "kth-largest-element-in-an-array", "url": "https://leetcode.com/problems/kth-largest-element-in-an-array/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 112, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Task Scheduler", "slug": "task-scheduler", "url": "https://leetcode.com/problems/task-scheduler/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 113, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Design Twitter", "slug": "design-twitter", "url": "https://leetcode.com/problems/design-twitter/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 114, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Single Threaded CPU", "slug": "single-threaded-cpu", "url": "https://leetcode.com/problems/single-threaded-cpu/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 115, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Reorganize String", "slug": "reorganize-string", "url": "https://leetcode.com/problems/reorganize-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 116, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Longest Happy String", "slug": "longest-happy-string", "url": "https://leetcode.com/problems/longest-happy-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 117, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Car Pooling", "slug": "car-pooling", "url": "https://leetcode.com/problems/car-pooling/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 8, "seq": 118, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Find Median From Data Stream", "slug": "find-median-from-data-stream", "url": "https://leetcode.com/problems/find-median-from-data-stream/", "difficulty": "Hard", "diffRank": 3, "pattern": "Heap / Priority Queue", "order": 8, "seq": 119, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "IPO", "slug": "ipo", "url": "https://leetcode.com/problems/ipo/", "difficulty": "Hard", "diffRank": 3, "pattern": "Heap / Priority Queue", "order": 8, "seq": 120, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Sum of All Subsets XOR Total", "slug": "sum-of-all-subset-xor-totals", "url": "https://leetcode.com/problems/sum-of-all-subset-xor-totals/", "difficulty": "Easy", "diffRank": 1, "pattern": "Backtracking", "order": 9, "seq": 121, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Subsets", "slug": "subsets", "url": "https://leetcode.com/problems/subsets/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 122, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Combination Sum", "slug": "combination-sum", "url": "https://leetcode.com/problems/combination-sum/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 123, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Combination Sum II", "slug": "combination-sum-ii", "url": "https://leetcode.com/problems/combination-sum-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 124, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Combinations", "slug": "combinations", "url": "https://leetcode.com/problems/combinations/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 125, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Permutations", "slug": "permutations", "url": "https://leetcode.com/problems/permutations/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 126, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Subsets II", "slug": "subsets-ii", "url": "https://leetcode.com/problems/subsets-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 127, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Permutations II", "slug": "permutations-ii", "url": "https://leetcode.com/problems/permutations-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 128, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Generate Parentheses", "slug": "generate-parentheses", "url": "https://leetcode.com/problems/generate-parentheses/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 129, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Word Search", "slug": "word-search", "url": "https://leetcode.com/problems/word-search/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 130, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Palindrome Partitioning", "slug": "palindrome-partitioning", "url": "https://leetcode.com/problems/palindrome-partitioning/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 131, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Letter Combinations of a Phone Number", "slug": "letter-combinations-of-a-phone-number", "url": "https://leetcode.com/problems/letter-combinations-of-a-phone-number/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 132, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Matchsticks to Square", "slug": "matchsticks-to-square", "url": "https://leetcode.com/problems/matchsticks-to-square/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 133, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Partition to K Equal Sum Subsets", "slug": "partition-to-k-equal-sum-subsets", "url": "https://leetcode.com/problems/partition-to-k-equal-sum-subsets/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 9, "seq": 134, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "N Queens", "slug": "n-queens", "url": "https://leetcode.com/problems/n-queens/", "difficulty": "Hard", "diffRank": 3, "pattern": "Backtracking", "order": 9, "seq": 135, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "N Queens II", "slug": "n-queens-ii", "url": "https://leetcode.com/problems/n-queens-ii/", "difficulty": "Hard", "diffRank": 3, "pattern": "Backtracking", "order": 9, "seq": 136, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Word Break II", "slug": "word-break-ii", "url": "https://leetcode.com/problems/word-break-ii/", "difficulty": "Hard", "diffRank": 3, "pattern": "Backtracking", "order": 9, "seq": 137, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Implement Trie Prefix Tree", "slug": "implement-trie-prefix-tree", "url": "https://leetcode.com/problems/implement-trie-prefix-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Tries", "order": 10, "seq": 138, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Design Add And Search Words Data Structure", "slug": "design-add-and-search-words-data-structure", "url": "https://leetcode.com/problems/design-add-and-search-words-data-structure/", "difficulty": "Medium", "diffRank": 2, "pattern": "Tries", "order": 10, "seq": 139, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Extra Characters in a String", "slug": "extra-characters-in-a-string", "url": "https://leetcode.com/problems/extra-characters-in-a-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Tries", "order": 10, "seq": 140, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Word Search II", "slug": "word-search-ii", "url": "https://leetcode.com/problems/word-search-ii/", "difficulty": "Hard", "diffRank": 3, "pattern": "Tries", "order": 10, "seq": 141, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Island Perimeter", "slug": "island-perimeter", "url": "https://leetcode.com/problems/island-perimeter/", "difficulty": "Easy", "diffRank": 1, "pattern": "Graphs", "order": 11, "seq": 142, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Verifying An Alien Dictionary", "slug": "verifying-an-alien-dictionary", "url": "https://leetcode.com/problems/verifying-an-alien-dictionary/", "difficulty": "Easy", "diffRank": 1, "pattern": "Graphs", "order": 11, "seq": 143, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Find the Town Judge", "slug": "find-the-town-judge", "url": "https://leetcode.com/problems/find-the-town-judge/", "difficulty": "Easy", "diffRank": 1, "pattern": "Graphs", "order": 11, "seq": 144, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Number of Islands", "slug": "number-of-islands", "url": "https://leetcode.com/problems/number-of-islands/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 145, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Max Area of Island", "slug": "max-area-of-island", "url": "https://leetcode.com/problems/max-area-of-island/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 146, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Clone Graph", "slug": "clone-graph", "url": "https://leetcode.com/problems/clone-graph/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 147, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Walls And Gates", "slug": "walls-and-gates", "url": "https://leetcode.com/problems/walls-and-gates/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 148, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Rotting Oranges", "slug": "rotting-oranges", "url": "https://leetcode.com/problems/rotting-oranges/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 149, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Pacific Atlantic Water Flow", "slug": "pacific-atlantic-water-flow", "url": "https://leetcode.com/problems/pacific-atlantic-water-flow/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 150, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Surrounded Regions", "slug": "surrounded-regions", "url": "https://leetcode.com/problems/surrounded-regions/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 151, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Open The Lock", "slug": "open-the-lock", "url": "https://leetcode.com/problems/open-the-lock/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 152, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Course Schedule", "slug": "course-schedule", "url": "https://leetcode.com/problems/course-schedule/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 153, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Course Schedule II", "slug": "course-schedule-ii", "url": "https://leetcode.com/problems/course-schedule-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 154, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Graph Valid Tree", "slug": "graph-valid-tree", "url": "https://leetcode.com/problems/graph-valid-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 155, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Course Schedule IV", "slug": "course-schedule-iv", "url": "https://leetcode.com/problems/course-schedule-iv/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 156, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Number of Connected Components In An Undirected Graph", "slug": "number-of-connected-components-in-an-undirected-graph", "url": "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 157, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Redundant Connection", "slug": "redundant-connection", "url": "https://leetcode.com/problems/redundant-connection/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 158, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Accounts Merge", "slug": "accounts-merge", "url": "https://leetcode.com/problems/accounts-merge/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 159, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Evaluate Division", "slug": "evaluate-division", "url": "https://leetcode.com/problems/evaluate-division/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 160, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Minimum Height Trees", "slug": "minimum-height-trees", "url": "https://leetcode.com/problems/minimum-height-trees/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs", "order": 11, "seq": 161, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Word Ladder", "slug": "word-ladder", "url": "https://leetcode.com/problems/word-ladder/", "difficulty": "Hard", "diffRank": 3, "pattern": "Graphs", "order": 11, "seq": 162, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Path with Minimum Effort", "slug": "path-with-minimum-effort", "url": "https://leetcode.com/problems/path-with-minimum-effort/", "difficulty": "Medium", "diffRank": 2, "pattern": "Advanced Graphs", "order": 12, "seq": 163, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Network Delay Time", "slug": "network-delay-time", "url": "https://leetcode.com/problems/network-delay-time/", "difficulty": "Medium", "diffRank": 2, "pattern": "Advanced Graphs", "order": 12, "seq": 164, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Reconstruct Itinerary", "slug": "reconstruct-itinerary", "url": "https://leetcode.com/problems/reconstruct-itinerary/", "difficulty": "Hard", "diffRank": 3, "pattern": "Advanced Graphs", "order": 12, "seq": 165, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Min Cost to Connect All Points", "slug": "min-cost-to-connect-all-points", "url": "https://leetcode.com/problems/min-cost-to-connect-all-points/", "difficulty": "Medium", "diffRank": 2, "pattern": "Advanced Graphs", "order": 12, "seq": 166, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Swim In Rising Water", "slug": "swim-in-rising-water", "url": "https://leetcode.com/problems/swim-in-rising-water/", "difficulty": "Hard", "diffRank": 3, "pattern": "Advanced Graphs", "order": 12, "seq": 167, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Alien Dictionary", "slug": "alien-dictionary", "url": "https://leetcode.com/problems/alien-dictionary/", "difficulty": "Hard", "diffRank": 3, "pattern": "Advanced Graphs", "order": 12, "seq": 168, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Cheapest Flights Within K Stops", "slug": "cheapest-flights-within-k-stops", "url": "https://leetcode.com/problems/cheapest-flights-within-k-stops/", "difficulty": "Medium", "diffRank": 2, "pattern": "Advanced Graphs", "order": 12, "seq": 169, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Find Critical and Pseudo Critical Edges in Minimum Spanning Tree", "slug": "find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree", "url": "https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/", "difficulty": "Hard", "diffRank": 3, "pattern": "Advanced Graphs", "order": 12, "seq": 170, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Build a Matrix With Conditions", "slug": "build-a-matrix-with-conditions", "url": "https://leetcode.com/problems/build-a-matrix-with-conditions/", "difficulty": "Hard", "diffRank": 3, "pattern": "Advanced Graphs", "order": 12, "seq": 171, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Greatest Common Divisor Traversal", "slug": "greatest-common-divisor-traversal", "url": "https://leetcode.com/problems/greatest-common-divisor-traversal/", "difficulty": "Hard", "diffRank": 3, "pattern": "Advanced Graphs", "order": 12, "seq": 172, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Climbing Stairs", "slug": "climbing-stairs", "url": "https://leetcode.com/problems/climbing-stairs/", "difficulty": "Easy", "diffRank": 1, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 173, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Min Cost Climbing Stairs", "slug": "min-cost-climbing-stairs", "url": "https://leetcode.com/problems/min-cost-climbing-stairs/", "difficulty": "Easy", "diffRank": 1, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 174, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "N-th Tribonacci Number", "slug": "n-th-tribonacci-number", "url": "https://leetcode.com/problems/n-th-tribonacci-number/", "difficulty": "Easy", "diffRank": 1, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 175, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "House Robber", "slug": "house-robber", "url": "https://leetcode.com/problems/house-robber/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 176, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "House Robber II", "slug": "house-robber-ii", "url": "https://leetcode.com/problems/house-robber-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 177, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Longest Palindromic Substring", "slug": "longest-palindromic-substring", "url": "https://leetcode.com/problems/longest-palindromic-substring/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 178, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Palindromic Substrings", "slug": "palindromic-substrings", "url": "https://leetcode.com/problems/palindromic-substrings/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 179, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Decode Ways", "slug": "decode-ways", "url": "https://leetcode.com/problems/decode-ways/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 180, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Coin Change", "slug": "coin-change", "url": "https://leetcode.com/problems/coin-change/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 181, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Maximum Product Subarray", "slug": "maximum-product-subarray", "url": "https://leetcode.com/problems/maximum-product-subarray/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 182, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Word Break", "slug": "word-break", "url": "https://leetcode.com/problems/word-break/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 183, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Longest Increasing Subsequence", "slug": "longest-increasing-subsequence", "url": "https://leetcode.com/problems/longest-increasing-subsequence/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 184, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Partition Equal Subset Sum", "slug": "partition-equal-subset-sum", "url": "https://leetcode.com/problems/partition-equal-subset-sum/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 185, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Combination Sum IV", "slug": "combination-sum-iv", "url": "https://leetcode.com/problems/combination-sum-iv/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 186, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Perfect Squares", "slug": "perfect-squares", "url": "https://leetcode.com/problems/perfect-squares/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 187, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Integer Break", "slug": "integer-break", "url": "https://leetcode.com/problems/integer-break/", "difficulty": "Medium", "diffRank": 2, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 188, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Stone Game III", "slug": "stone-game-iii", "url": "https://leetcode.com/problems/stone-game-iii/", "difficulty": "Hard", "diffRank": 3, "pattern": "1-D Dynamic Programming", "order": 13, "seq": 189, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Unique Paths", "slug": "unique-paths", "url": "https://leetcode.com/problems/unique-paths/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 190, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Unique Paths II", "slug": "unique-paths-ii", "url": "https://leetcode.com/problems/unique-paths-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 191, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Minimum Path Sum", "slug": "minimum-path-sum", "url": "https://leetcode.com/problems/minimum-path-sum/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 192, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Longest Common Subsequence", "slug": "longest-common-subsequence", "url": "https://leetcode.com/problems/longest-common-subsequence/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 193, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Last Stone Weight II", "slug": "last-stone-weight-ii", "url": "https://leetcode.com/problems/last-stone-weight-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 194, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Best Time to Buy And Sell Stock With Cooldown", "slug": "best-time-to-buy-and-sell-stock-with-cooldown", "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 195, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Coin Change II", "slug": "coin-change-ii", "url": "https://leetcode.com/problems/coin-change-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 196, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Target Sum", "slug": "target-sum", "url": "https://leetcode.com/problems/target-sum/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 197, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Interleaving String", "slug": "interleaving-string", "url": "https://leetcode.com/problems/interleaving-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 198, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Stone Game", "slug": "stone-game", "url": "https://leetcode.com/problems/stone-game/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 199, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Stone Game II", "slug": "stone-game-ii", "url": "https://leetcode.com/problems/stone-game-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 200, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Longest Increasing Path In a Matrix", "slug": "longest-increasing-path-in-a-matrix", "url": "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/", "difficulty": "Hard", "diffRank": 3, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 201, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Distinct Subsequences", "slug": "distinct-subsequences", "url": "https://leetcode.com/problems/distinct-subsequences/", "difficulty": "Hard", "diffRank": 3, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 202, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Edit Distance", "slug": "edit-distance", "url": "https://leetcode.com/problems/edit-distance/", "difficulty": "Medium", "diffRank": 2, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 203, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Burst Balloons", "slug": "burst-balloons", "url": "https://leetcode.com/problems/burst-balloons/", "difficulty": "Hard", "diffRank": 3, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 204, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Regular Expression Matching", "slug": "regular-expression-matching", "url": "https://leetcode.com/problems/regular-expression-matching/", "difficulty": "Hard", "diffRank": 3, "pattern": "2-D Dynamic Programming", "order": 14, "seq": 205, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Lemonade Change", "slug": "lemonade-change", "url": "https://leetcode.com/problems/lemonade-change/", "difficulty": "Easy", "diffRank": 1, "pattern": "Greedy", "order": 15, "seq": 206, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Maximum Subarray", "slug": "maximum-subarray", "url": "https://leetcode.com/problems/maximum-subarray/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 207, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Maximum Sum Circular Subarray", "slug": "maximum-sum-circular-subarray", "url": "https://leetcode.com/problems/maximum-sum-circular-subarray/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 208, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Longest Turbulent Subarray", "slug": "longest-turbulent-subarray", "url": "https://leetcode.com/problems/longest-turbulent-subarray/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 209, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Jump Game", "slug": "jump-game", "url": "https://leetcode.com/problems/jump-game/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 210, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Jump Game II", "slug": "jump-game-ii", "url": "https://leetcode.com/problems/jump-game-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 211, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Jump Game VII", "slug": "jump-game-vii", "url": "https://leetcode.com/problems/jump-game-vii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 212, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Gas Station", "slug": "gas-station", "url": "https://leetcode.com/problems/gas-station/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 213, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Hand of Straights", "slug": "hand-of-straights", "url": "https://leetcode.com/problems/hand-of-straights/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 214, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Dota2 Senate", "slug": "dota2-senate", "url": "https://leetcode.com/problems/dota2-senate/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 215, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Merge Triplets to Form Target Triplet", "slug": "merge-triplets-to-form-target-triplet", "url": "https://leetcode.com/problems/merge-triplets-to-form-target-triplet/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 216, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Partition Labels", "slug": "partition-labels", "url": "https://leetcode.com/problems/partition-labels/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 217, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Valid Parenthesis String", "slug": "valid-parenthesis-string", "url": "https://leetcode.com/problems/valid-parenthesis-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Greedy", "order": 15, "seq": 218, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Candy", "slug": "candy", "url": "https://leetcode.com/problems/candy/", "difficulty": "Hard", "diffRank": 3, "pattern": "Greedy", "order": 15, "seq": 219, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Insert Interval", "slug": "insert-interval", "url": "https://leetcode.com/problems/insert-interval/", "difficulty": "Medium", "diffRank": 2, "pattern": "Intervals", "order": 16, "seq": 220, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Merge Intervals", "slug": "merge-intervals", "url": "https://leetcode.com/problems/merge-intervals/", "difficulty": "Medium", "diffRank": 2, "pattern": "Intervals", "order": 16, "seq": 221, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Non Overlapping Intervals", "slug": "non-overlapping-intervals", "url": "https://leetcode.com/problems/non-overlapping-intervals/", "difficulty": "Medium", "diffRank": 2, "pattern": "Intervals", "order": 16, "seq": 222, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Meeting Rooms", "slug": "meeting-rooms", "url": "https://leetcode.com/problems/meeting-rooms/", "difficulty": "Easy", "diffRank": 1, "pattern": "Intervals", "order": 16, "seq": 223, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Meeting Rooms II", "slug": "meeting-rooms-ii", "url": "https://leetcode.com/problems/meeting-rooms-ii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Intervals", "order": 16, "seq": 224, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Meeting Rooms III", "slug": "meeting-rooms-iii", "url": "https://leetcode.com/problems/meeting-rooms-iii/", "difficulty": "Hard", "diffRank": 3, "pattern": "Intervals", "order": 16, "seq": 225, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Minimum Interval to Include Each Query", "slug": "minimum-interval-to-include-each-query", "url": "https://leetcode.com/problems/minimum-interval-to-include-each-query/", "difficulty": "Hard", "diffRank": 3, "pattern": "Intervals", "order": 16, "seq": 226, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Excel Sheet Column Title", "slug": "excel-sheet-column-title", "url": "https://leetcode.com/problems/excel-sheet-column-title/", "difficulty": "Easy", "diffRank": 1, "pattern": "Math & Geometry", "order": 17, "seq": 227, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Greatest Common Divisor of Strings", "slug": "greatest-common-divisor-of-strings", "url": "https://leetcode.com/problems/greatest-common-divisor-of-strings/", "difficulty": "Easy", "diffRank": 1, "pattern": "Math & Geometry", "order": 17, "seq": 228, "b75": false, "n150": false, "n250": true, "lc75": true}, {"name": "Insert Greatest Common Divisors in Linked List", "slug": "insert-greatest-common-divisors-in-linked-list", "url": "https://leetcode.com/problems/insert-greatest-common-divisors-in-linked-list/", "difficulty": "Medium", "diffRank": 2, "pattern": "Math & Geometry", "order": 17, "seq": 229, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Transpose Matrix", "slug": "transpose-matrix", "url": "https://leetcode.com/problems/transpose-matrix/", "difficulty": "Easy", "diffRank": 1, "pattern": "Math & Geometry", "order": 17, "seq": 230, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Rotate Image", "slug": "rotate-image", "url": "https://leetcode.com/problems/rotate-image/", "difficulty": "Medium", "diffRank": 2, "pattern": "Math & Geometry", "order": 17, "seq": 231, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Spiral Matrix", "slug": "spiral-matrix", "url": "https://leetcode.com/problems/spiral-matrix/", "difficulty": "Medium", "diffRank": 2, "pattern": "Math & Geometry", "order": 17, "seq": 232, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Set Matrix Zeroes", "slug": "set-matrix-zeroes", "url": "https://leetcode.com/problems/set-matrix-zeroes/", "difficulty": "Medium", "diffRank": 2, "pattern": "Math & Geometry", "order": 17, "seq": 233, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Happy Number", "slug": "happy-number", "url": "https://leetcode.com/problems/happy-number/", "difficulty": "Easy", "diffRank": 1, "pattern": "Math & Geometry", "order": 17, "seq": 234, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Plus One", "slug": "plus-one", "url": "https://leetcode.com/problems/plus-one/", "difficulty": "Easy", "diffRank": 1, "pattern": "Math & Geometry", "order": 17, "seq": 235, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Roman to Integer", "slug": "roman-to-integer", "url": "https://leetcode.com/problems/roman-to-integer/", "difficulty": "Easy", "diffRank": 1, "pattern": "Math & Geometry", "order": 17, "seq": 236, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Pow(x, n)", "slug": "powx-n", "url": "https://leetcode.com/problems/powx-n/", "difficulty": "Medium", "diffRank": 2, "pattern": "Math & Geometry", "order": 17, "seq": 237, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Multiply Strings", "slug": "multiply-strings", "url": "https://leetcode.com/problems/multiply-strings/", "difficulty": "Medium", "diffRank": 2, "pattern": "Math & Geometry", "order": 17, "seq": 238, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Detect Squares", "slug": "detect-squares", "url": "https://leetcode.com/problems/detect-squares/", "difficulty": "Medium", "diffRank": 2, "pattern": "Math & Geometry", "order": 17, "seq": 239, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Single Number", "slug": "single-number", "url": "https://leetcode.com/problems/single-number/", "difficulty": "Easy", "diffRank": 1, "pattern": "Bit Manipulation", "order": 18, "seq": 240, "b75": false, "n150": true, "n250": true, "lc75": true}, {"name": "Number of 1 Bits", "slug": "number-of-1-bits", "url": "https://leetcode.com/problems/number-of-1-bits/", "difficulty": "Easy", "diffRank": 1, "pattern": "Bit Manipulation", "order": 18, "seq": 241, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Counting Bits", "slug": "counting-bits", "url": "https://leetcode.com/problems/counting-bits/", "difficulty": "Easy", "diffRank": 1, "pattern": "Bit Manipulation", "order": 18, "seq": 242, "b75": true, "n150": true, "n250": true, "lc75": true}, {"name": "Add Binary", "slug": "add-binary", "url": "https://leetcode.com/problems/add-binary/", "difficulty": "Easy", "diffRank": 1, "pattern": "Bit Manipulation", "order": 18, "seq": 243, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Reverse Bits", "slug": "reverse-bits", "url": "https://leetcode.com/problems/reverse-bits/", "difficulty": "Easy", "diffRank": 1, "pattern": "Bit Manipulation", "order": 18, "seq": 244, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Missing Number", "slug": "missing-number", "url": "https://leetcode.com/problems/missing-number/", "difficulty": "Easy", "diffRank": 1, "pattern": "Bit Manipulation", "order": 18, "seq": 245, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Sum of Two Integers", "slug": "sum-of-two-integers", "url": "https://leetcode.com/problems/sum-of-two-integers/", "difficulty": "Medium", "diffRank": 2, "pattern": "Bit Manipulation", "order": 18, "seq": 246, "b75": true, "n150": true, "n250": true, "lc75": false}, {"name": "Reverse Integer", "slug": "reverse-integer", "url": "https://leetcode.com/problems/reverse-integer/", "difficulty": "Medium", "diffRank": 2, "pattern": "Bit Manipulation", "order": 18, "seq": 247, "b75": false, "n150": true, "n250": true, "lc75": false}, {"name": "Bitwise AND of Numbers Range", "slug": "bitwise-and-of-numbers-range", "url": "https://leetcode.com/problems/bitwise-and-of-numbers-range/", "difficulty": "Medium", "diffRank": 2, "pattern": "Bit Manipulation", "order": 18, "seq": 248, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Minimum Array End", "slug": "minimum-array-end", "url": "https://leetcode.com/problems/minimum-array-end/", "difficulty": "Medium", "diffRank": 2, "pattern": "Bit Manipulation", "order": 18, "seq": 249, "b75": false, "n150": false, "n250": true, "lc75": false}, {"name": "Kids With the Greatest Number of Candies", "slug": "kids-with-the-greatest-number-of-candies", "url": "https://leetcode.com/problems/kids-with-the-greatest-number-of-candies/", "difficulty": "Easy", "diffRank": 1, "pattern": "Array / String", "order": 51, "seq": 250, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Can Place Flowers", "slug": "can-place-flowers", "url": "https://leetcode.com/problems/can-place-flowers/", "difficulty": "Easy", "diffRank": 1, "pattern": "Array / String", "order": 51, "seq": 251, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Reverse Vowels of a String", "slug": "reverse-vowels-of-a-string", "url": "https://leetcode.com/problems/reverse-vowels-of-a-string/", "difficulty": "Easy", "diffRank": 1, "pattern": "Array / String", "order": 51, "seq": 252, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Reverse Words in a String", "slug": "reverse-words-in-a-string", "url": "https://leetcode.com/problems/reverse-words-in-a-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Array / String", "order": 51, "seq": 253, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Increasing Triplet Subsequence", "slug": "increasing-triplet-subsequence", "url": "https://leetcode.com/problems/increasing-triplet-subsequence/", "difficulty": "Medium", "diffRank": 2, "pattern": "Array / String", "order": 51, "seq": 254, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "String Compression", "slug": "string-compression", "url": "https://leetcode.com/problems/string-compression/", "difficulty": "Medium", "diffRank": 2, "pattern": "Array / String", "order": 51, "seq": 255, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Move Zeroes", "slug": "move-zeroes", "url": "https://leetcode.com/problems/move-zeroes/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 52, "seq": 256, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Is Subsequence", "slug": "is-subsequence", "url": "https://leetcode.com/problems/is-subsequence/", "difficulty": "Easy", "diffRank": 1, "pattern": "Two Pointers", "order": 52, "seq": 257, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Max Number of K-Sum Pairs", "slug": "max-number-of-k-sum-pairs", "url": "https://leetcode.com/problems/max-number-of-k-sum-pairs/", "difficulty": "Medium", "diffRank": 2, "pattern": "Two Pointers", "order": 52, "seq": 258, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Maximum Average Subarray I", "slug": "maximum-average-subarray-i", "url": "https://leetcode.com/problems/maximum-average-subarray-i/", "difficulty": "Easy", "diffRank": 1, "pattern": "Sliding Window", "order": 53, "seq": 259, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Maximum Number of Vowels in a Substring of Given Length", "slug": "maximum-number-of-vowels-in-a-substring-of-given-length", "url": "https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 53, "seq": 260, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Max Consecutive Ones III", "slug": "max-consecutive-ones-iii", "url": "https://leetcode.com/problems/max-consecutive-ones-iii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 53, "seq": 261, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Longest Subarray of 1's After Deleting One Element", "slug": "longest-subarray-of-1s-after-deleting-one-element", "url": "https://leetcode.com/problems/longest-subarray-of-1s-after-deleting-one-element/", "difficulty": "Medium", "diffRank": 2, "pattern": "Sliding Window", "order": 53, "seq": 262, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Find the Highest Altitude", "slug": "find-the-highest-altitude", "url": "https://leetcode.com/problems/find-the-highest-altitude/", "difficulty": "Easy", "diffRank": 1, "pattern": "Prefix Sum", "order": 54, "seq": 263, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Find Pivot Index", "slug": "find-pivot-index", "url": "https://leetcode.com/problems/find-pivot-index/", "difficulty": "Easy", "diffRank": 1, "pattern": "Prefix Sum", "order": 54, "seq": 264, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Find the Difference of Two Arrays", "slug": "find-the-difference-of-two-arrays", "url": "https://leetcode.com/problems/find-the-difference-of-two-arrays/", "difficulty": "Easy", "diffRank": 1, "pattern": "Hash Map / Set", "order": 55, "seq": 265, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Unique Number of Occurrences", "slug": "unique-number-of-occurrences", "url": "https://leetcode.com/problems/unique-number-of-occurrences/", "difficulty": "Easy", "diffRank": 1, "pattern": "Hash Map / Set", "order": 55, "seq": 266, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Determine if Two Strings Are Close", "slug": "determine-if-two-strings-are-close", "url": "https://leetcode.com/problems/determine-if-two-strings-are-close/", "difficulty": "Medium", "diffRank": 2, "pattern": "Hash Map / Set", "order": 55, "seq": 267, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Equal Row and Column Pairs", "slug": "equal-row-and-column-pairs", "url": "https://leetcode.com/problems/equal-row-and-column-pairs/", "difficulty": "Medium", "diffRank": 2, "pattern": "Hash Map / Set", "order": 55, "seq": 268, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Removing Stars From a String", "slug": "removing-stars-from-a-string", "url": "https://leetcode.com/problems/removing-stars-from-a-string/", "difficulty": "Medium", "diffRank": 2, "pattern": "Stack", "order": 56, "seq": 269, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Number of Recent Calls", "slug": "number-of-recent-calls", "url": "https://leetcode.com/problems/number-of-recent-calls/", "difficulty": "Easy", "diffRank": 1, "pattern": "Queue", "order": 57, "seq": 270, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Delete the Middle Node of a Linked List", "slug": "delete-the-middle-node-of-a-linked-list", "url": "https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 58, "seq": 271, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Odd Even Linked List", "slug": "odd-even-linked-list", "url": "https://leetcode.com/problems/odd-even-linked-list/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 58, "seq": 272, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Maximum Twin Sum of a Linked List", "slug": "maximum-twin-sum-of-a-linked-list", "url": "https://leetcode.com/problems/maximum-twin-sum-of-a-linked-list/", "difficulty": "Medium", "diffRank": 2, "pattern": "Linked List", "order": 58, "seq": 273, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Leaf-Similar Trees", "slug": "leaf-similar-trees", "url": "https://leetcode.com/problems/leaf-similar-trees/", "difficulty": "Easy", "diffRank": 1, "pattern": "Binary Tree - DFS", "order": 59, "seq": 274, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Path Sum III", "slug": "path-sum-iii", "url": "https://leetcode.com/problems/path-sum-iii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Tree - DFS", "order": 59, "seq": 275, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Longest ZigZag Path in a Binary Tree", "slug": "longest-zigzag-path-in-a-binary-tree", "url": "https://leetcode.com/problems/longest-zigzag-path-in-a-binary-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Tree - DFS", "order": 59, "seq": 276, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Lowest Common Ancestor of a Binary Tree", "slug": "lowest-common-ancestor-of-a-binary-tree", "url": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Tree - DFS", "order": 59, "seq": 277, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Maximum Level Sum of a Binary Tree", "slug": "maximum-level-sum-of-a-binary-tree", "url": "https://leetcode.com/problems/maximum-level-sum-of-a-binary-tree/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Tree - BFS", "order": 60, "seq": 278, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Search in a Binary Search Tree", "slug": "search-in-a-binary-search-tree", "url": "https://leetcode.com/problems/search-in-a-binary-search-tree/", "difficulty": "Easy", "diffRank": 1, "pattern": "Binary Search Tree", "order": 61, "seq": 279, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Keys and Rooms", "slug": "keys-and-rooms", "url": "https://leetcode.com/problems/keys-and-rooms/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs - DFS", "order": 62, "seq": 280, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Number of Provinces", "slug": "number-of-provinces", "url": "https://leetcode.com/problems/number-of-provinces/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs - DFS", "order": 62, "seq": 281, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Reorder Routes to Make All Paths Lead to the City Zero", "slug": "reorder-routes-to-make-all-paths-lead-to-the-city-zero", "url": "https://leetcode.com/problems/reorder-routes-to-make-all-paths-lead-to-the-city-zero/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs - DFS", "order": 62, "seq": 282, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Nearest Exit from Entrance in Maze", "slug": "nearest-exit-from-entrance-in-maze", "url": "https://leetcode.com/problems/nearest-exit-from-entrance-in-maze/", "difficulty": "Medium", "diffRank": 2, "pattern": "Graphs - BFS", "order": 63, "seq": 283, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Smallest Number in Infinite Set", "slug": "smallest-number-in-infinite-set", "url": "https://leetcode.com/problems/smallest-number-in-infinite-set/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 64, "seq": 284, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Maximum Subsequence Score", "slug": "maximum-subsequence-score", "url": "https://leetcode.com/problems/maximum-subsequence-score/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 64, "seq": 285, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Total Cost to Hire K Workers", "slug": "total-cost-to-hire-k-workers", "url": "https://leetcode.com/problems/total-cost-to-hire-k-workers/", "difficulty": "Medium", "diffRank": 2, "pattern": "Heap / Priority Queue", "order": 64, "seq": 286, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Successful Pairs of Spells and Potions", "slug": "successful-pairs-of-spells-and-potions", "url": "https://leetcode.com/problems/successful-pairs-of-spells-and-potions/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 65, "seq": 287, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Find Peak Element", "slug": "find-peak-element", "url": "https://leetcode.com/problems/find-peak-element/", "difficulty": "Medium", "diffRank": 2, "pattern": "Binary Search", "order": 65, "seq": 288, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Combination Sum III", "slug": "combination-sum-iii", "url": "https://leetcode.com/problems/combination-sum-iii/", "difficulty": "Medium", "diffRank": 2, "pattern": "Backtracking", "order": 66, "seq": 289, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Domino and Tromino Tiling", "slug": "domino-and-tromino-tiling", "url": "https://leetcode.com/problems/domino-and-tromino-tiling/", "difficulty": "Medium", "diffRank": 2, "pattern": "DP - 1D", "order": 67, "seq": 290, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Best Time to Buy and Sell Stock with Transaction Fee", "slug": "best-time-to-buy-and-sell-stock-with-transaction-fee", "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/", "difficulty": "Medium", "diffRank": 2, "pattern": "DP - Multidimensional", "order": 68, "seq": 291, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Minimum Flips to Make a OR b Equal to c", "slug": "minimum-flips-to-make-a-or-b-equal-to-c", "url": "https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/", "difficulty": "Medium", "diffRank": 2, "pattern": "Bit Manipulation", "order": 69, "seq": 292, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Search Suggestions System", "slug": "search-suggestions-system", "url": "https://leetcode.com/problems/search-suggestions-system/", "difficulty": "Medium", "diffRank": 2, "pattern": "Trie", "order": 70, "seq": 293, "b75": false, "n150": false, "n250": false, "lc75": true}, {"name": "Minimum Number of Arrows to Burst Balloons", "slug": "minimum-number-of-arrows-to-burst-balloons", "url": "https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/", "difficulty": "Medium", "diffRank": 2, "pattern": "Intervals", "order": 71, "seq": 294, "b75": false, "n150": false, "n250": false, "lc75": true}];
+const SEED = {};
+const KEY="lc-tracker-v1", CKEY="lc-catalog-v1", LKEY="lc-list";
+const CLEAN_INT={1:7,2:14,3:30};
+const PATTERNS=[...new Set(CAT250.slice().sort((a,b)=>a.order-b.order).map(c=>c.pattern))];
+const DR={Easy:1,Medium:2,Hard:3};
+const FLOOR=[["n ≤ 20","backtracking / 2^n"],["n ≤ 100","O(n³)"],["n ≤ 1,000","O(n²)"],["n ≤ 100,000","O(n log n)"],["n ≤ 1,000,000","O(n) / O(n log n)"],["n ≥ 100,000,000","O(log n) / O(1)"]];
+const LISTS={
+  blind75:{label:"Blind 75",denom:75,test:p=>p.b75},
+  leetcode75:{label:"LeetCode 75",denom:75,test:p=>p.lc75},
+  neetcode150:{label:"NeetCode 150",denom:150,test:p=>p.n150},
+  neetcode250:{label:"NeetCode 250",denom:250,test:p=>p.n250},
+  solved:{label:"All my solved",denom:null,test:p=>p.status==="solved"},
+  all:{label:"Everything",denom:null,test:p=>true},
+};
+let activeList="neetcode150";
+
+/* date helpers */
+function fmt(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function today(){return fmt(new Date());}
+function addDays(iso,n){const[y,m,d]=iso.split("-").map(Number);return fmt(new Date(y,m-1,d+n,12));}
+function daysUntil(iso){if(!iso)return null;const[y,m,d]=iso.split("-").map(Number);const t=new Date(y,m-1,d,12);const n=new Date();n.setHours(12,0,0,0);return Math.round((t-n)/864e5);}
+function relDate(iso){const d=daysUntil(iso);if(d===null)return"";if(d<0)return Math.abs(d)+"d overdue";if(d===0)return"due today";if(d===1)return"tomorrow";return"in "+d+"d";}
+function esc(s){return(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* state + dynamic catalog */
+let state={}, extraCat={};
+function load(){
+  const raw=localStorage.getItem(KEY);
+  state = raw?JSON.parse(raw):seedState();
+  extraCat = JSON.parse(localStorage.getItem(CKEY)||"{}");
+  activeList = localStorage.getItem(LKEY)||"neetcode150";
+  if(!LISTS[activeList])activeList="neetcode150";
+}
+function seedState(){const s={};for(const slug in SEED){const d=SEED[slug];s[slug]={status:"solved",quality:"",firstSolved:d,lastReviewed:d,nextReview:addDays(d,7),reviewCount:1,attempts:1,cleanStreak:0,log:[{date:d,outcome:"",help:"",note:"pulled from your LeetCode account — re-solve from blank to grade"}]};}localStorage.setItem(KEY,JSON.stringify(s));return s;}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));scheduleSync();}
+function saveCat(){localStorage.setItem(CKEY,JSON.stringify(extraCat));}
+function saveList(){localStorage.setItem(LKEY,activeList);}
+const DEF={status:"not-started",quality:"",trigger:"",notes:"",timeC:"",spaceC:"",predictedC:"",attempts:0,reviewCount:0,cleanStreak:0,firstSolved:null,lastReviewed:null,nextReview:null,lastHelp:"",lastDrilled:null,drillStreak:0,log:[]};
+let CAT=[], BY={};
+function buildCat(){
+  CAT=[];BY={};
+  CAT250.forEach(c=>{CAT.push(c);BY[c.slug]=c;});
+  for(const slug in extraCat){if(BY[slug])continue;const e=extraCat[slug];
+    const o={slug,name:e.n||slug,url:"https://leetcode.com/problems/"+slug+"/",difficulty:e.d||"",diffRank:DR[e.d]||2,pattern:"",order:999,seq:99999,b75:false,n150:false,n250:false,lc75:false};
+    CAT.push(o);BY[slug]=o;}
+}
+function get(slug){return Object.assign({},DEF,BY[slug]||{slug,name:slug,url:"https://leetcode.com/problems/"+slug+"/",difficulty:"",pattern:"",b75:false,n150:false,n250:false,lc75:false},state[slug]||{});}
+function all(){return CAT.map(c=>Object.assign({},DEF,c,state[c.slug]||{}));}
+function mut(slug,fn){const cur=Object.assign({},DEF,state[slug]||{});fn(cur);cur.mtime=nowTs();state[slug]=cur;save();}
+function inList(p){return LISTS[activeList].test(p);}
+
+/* ingest */
+function ingestCatalog(arr){if(!arr)return;arr.forEach(x=>{const s=x.s||x.slug;if(s)extraCat[s]={n:x.t||x.n||s,d:x.d||""};});saveCat();buildCat();}
+function ingestSolved(slugs){let added=0;const t=today();(slugs||[]).forEach(slug=>{const cur=state[slug];if(!cur||cur.status!=="solved"){const base=Object.assign({},DEF,cur||{});base.status="solved";base.log=[{date:t,outcome:"",help:"",note:"synced from your LeetCode account"}].concat(base.log||[]);base.mtime=nowTs();state[slug]=base;added++;}});save();return added;}
+
+/* spaced repetition */
+function intervalFor(o,streak){if(o==="clean")return streak>=4?60:(CLEAN_INT[streak]||60);return 3;}
+function logOutcome(slug,outcome,help){const t=today();mut(slug,p=>{let streak=p.cleanStreak||0;streak=(outcome==="clean")?streak+1:0;p.cleanStreak=streak;p.quality=outcome;p.status=(outcome==="missed")?"attempted":"solved";p.attempts=(p.attempts||0)+1;p.reviewCount=(p.reviewCount||0)+1;p.lastReviewed=t;if(help)p.lastHelp=help;if(outcome!=="missed"&&!p.firstSolved)p.firstSolved=t;p.nextReview=addDays(t,intervalFor(outcome,streak));p.log=p.log||[];p.log.unshift({date:t,outcome:outcome,help:help||"",note:""});});}
+
+/* drill */
+function drillPool(){return all().filter(p=>p.status==="solved"&&(p.trigger||"").trim());}
+function drillSorted(){return drillPool().sort((a,b)=>{if(!a.lastDrilled&&b.lastDrilled)return -1;if(a.lastDrilled&&!b.lastDrilled)return 1;if(a.lastDrilled!==b.lastDrilled)return(a.lastDrilled||"")<(b.lastDrilled||"")?-1:1;return(a.drillStreak||0)-(b.drillStreak||0);});}
+function drillDueCount(){const t=today();return drillPool().filter(p=>!p.lastDrilled||p.lastDrilled!==t).length;}
+function gradeDrill(slug,ok){const t=today();mut(slug,p=>{p.lastDrilled=t;if(ok){p.drillStreak=(p.drillStreak||0)+1;}else{p.drillStreak=0;p.nextReview=t;p.log=p.log||[];p.log.unshift({date:t,outcome:"",help:"",note:"forgot trigger in drill — owe a re-solve"});}});}
+
+/* stats (scoped to active list) */
+function diffCounts(arr){const o={Easy:0,Medium:0,Hard:0};arr.forEach(p=>{if(o[p.difficulty]!==undefined)o[p.difficulty]++;});return o;}
+function stats(){
+  const a=all();
+  const lifetime=a.filter(p=>p.status==="solved").length;
+  const lp=a.filter(inList);
+  const solved=lp.filter(p=>p.status==="solved");
+  const missingTriggers=solved.filter(p=>!(p.trigger||"").trim());
+  const due=lp.filter(p=>p.status==="solved"&&p.nextReview&&daysUntil(p.nextReview)<=0);
+  const weak=lp.filter(p=>p.quality==="missed"||p.quality==="scrappy");
+  const meta=LISTS[activeList];
+  const denom=meta.denom||lp.length;
+  const byDiff={};["Easy","Medium","Hard"].forEach(d=>{const t=lp.filter(p=>p.difficulty===d);byDiff[d]={s:t.filter(p=>p.status==="solved").length,t:t.length};});
+  return{lifetime,lifeDiff:diffCounts(a.filter(p=>p.status==="solved")),lp,solved,missingTriggers,due,weak,denom,fixed:!!meta.denom,label:meta.label,byDiff,total:lp.length};
+}
+function streakDays(){const set=new Set();for(const s in state){const p=state[s];(p.log||[]).forEach(l=>{if(l.date)set.add(l.date);});if(p.firstSolved)set.add(p.firstSolved);if(p.lastDrilled)set.add(p.lastDrilled);}let n=0,cur=new Date();cur.setHours(12,0,0,0);if(!set.has(fmt(cur))){cur.setDate(cur.getDate()-1);if(!set.has(fmt(cur)))return 0;}while(set.has(fmt(cur))){n++;cur.setDate(cur.getDate()-1);}return n;}
+function patStat(pat){const a=all().filter(p=>p.pattern===pat&&inList(p));return{s:a.filter(p=>p.status==="solved").length,t:a.length};}
+function forecast(){const days=[];for(let i=0;i<7;i++){const iso=addDays(today(),i);let c;if(i===0)c=all().filter(p=>p.status==="solved"&&inList(p)&&p.nextReview&&daysUntil(p.nextReview)<=0).length;else c=all().filter(p=>p.status==="solved"&&inList(p)&&p.nextReview===iso).length;days.push({iso,c,label:i===0?"Today":new Date(iso.split("-")[0],iso.split("-")[1]-1,iso.split("-")[2],12).toLocaleDateString(undefined,{weekday:"short"})});}return days;}
+function weakestPatterns(){return PATTERNS.map(pat=>{const a=all().filter(p=>p.pattern===pat&&inList(p));const bad=a.filter(p=>p.quality==="missed"||p.quality==="scrappy").length;return{pat,bad};}).filter(x=>x.bad>0).sort((a,b)=>b.bad-a.bad).slice(0,5);}
+function independence(){const map={alone:1,nudge:0.7,editorial:0.3,solution:0};let tot=0,sum=0;for(const s in state){(state[s].log||[]).forEach(l=>{if(l.help&&map[l.help]!==undefined){tot++;sum+=map[l.help];}});}return tot?{pct:Math.round(sum/tot*100),n:tot}:null;}
+function isSynced(){return Object.keys(extraCat).length>0;}
+
+/* views */
+let view="dashboard";
+function setView(v){view=v;document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===v));if(v==="drill")startDrill();render();}
+function listDropdown(id){return `<select class="listsel" data-listsel id="${id}">`+Object.keys(LISTS).map(k=>`<option value="${k}" ${activeList===k?"selected":""}>${LISTS[k].label}</option>`).join("")+`</select>`;}
+function render(){
+  const s=stats();
+  const b=document.getElementById("dueBadge");b.textContent=s.due.length;b.classList.toggle("hide",s.due.length===0);
+  const db=document.getElementById("drillBadge");const dc=drillDueCount();db.textContent=dc;db.classList.toggle("hide",dc===0);
+  const app=document.getElementById("app");
+  if(view==="dashboard")app.innerHTML=viewDashboard(s);
+  else if(view==="review")app.innerHTML=viewReview(s);
+  else if(view==="problems")app.innerHTML=viewProblems();
+  else if(view==="drill")app.innerHTML=viewDrill();
+  else if(view==="library")app.innerHTML=viewLibrary();
+  else app.innerHTML=viewMethod();
+  bindView();
+}
+
+function viewDashboard(s){
+  let hero;
+  if(s.fixed){
+    const pct=Math.round(s.solved.length/s.denom*100);
+    const C=2*Math.PI*78,off=C*(1-Math.min(1,s.solved.length/s.denom));
+    const diff=["Easy","Medium","Hard"].map(d=>{const o=s.byDiff[d],p=o.t?o.s/o.t*100:0,col=d==="Easy"?"var(--easy)":d==="Medium"?"var(--med)":"var(--hard)";return `<div class="diffrow"><div class="lab ${d}">${d}</div><div class="bar"><i style="width:${p}%;background:${col}"></i></div><div class="cnt">${o.s} / ${o.t}</div></div>`;}).join("");
+    hero=`<div class="ring-wrap"><div class="ring"><svg width="180" height="180"><circle cx="90" cy="90" r="78" fill="none" stroke="var(--bg3)" stroke-width="14"/><circle cx="90" cy="90" r="78" fill="none" stroke="var(--acc)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><div class="mid"><div class="big">${pct}%</div><div class="small">${s.solved.length} of ${s.denom}</div></div></div></div><div class="diffbars">${diff}</div>`;
+  }else{
+    const dc=s.fixed?s.byDiff:null;const cnt=diffCounts(s.solved);const mx=Math.max(1,cnt.Easy,cnt.Medium,cnt.Hard);
+    const diff=["Easy","Medium","Hard"].map(d=>{const col=d==="Easy"?"var(--easy)":d==="Medium"?"var(--med)":"var(--hard)";return `<div class="diffrow"><div class="lab ${d}">${d}</div><div class="bar"><i style="width:${cnt[d]/mx*100}%;background:${col}"></i></div><div class="cnt">${cnt[d]}</div></div>`;}).join("");
+    hero=`<div class="bignum"><div class="bn">${s.solved.length}</div><div class="bl">${s.label==="Everything"?"problems touched":"problems solved"}</div></div><div class="diffbars">${diff}</div>`;
+  }
+  const pats=PATTERNS.map(pat=>{const o=patStat(pat);if(!o.t)return"";const done=o.s===o.t;return `<div class="patcard ${done?"done":""}" data-gopat="${esc(pat)}"><div class="top"><span class="name">${esc(pat)}</span><span class="frac">${o.s}/${o.t}${done?" ✓":""}</span></div><div class="bar"><i style="width:${o.t?o.s/o.t*100:0}%;background:${done?"var(--ok)":"var(--acc)"}"></i></div></div>`;}).join("");
+  const duePrev=s.due.slice().sort((a,b)=>daysUntil(a.nextReview)-daysUntil(b.nextReview)).slice(0,4).map(qcard).join("")||`<div class="hintbox">Nothing due in ${esc(s.label)}. \u{1F389} Start a new one in <b>Problems</b>, or <b>Drill</b> your triggers.</div>`;
+  const banner=isSynced()?"":`<div class="syncbanner"><span style="font-size:20px">\u{1F4E1}</span><div class="bt">You've solved <b>more on LeetCode than shown here</b> — the app only sees a few until you sync. Pull in your full history (all difficulties, every list).</div><button class="btn sm" id="bannerSync">Sync now</button></div>`;
+  return `
+  <div class="dashhead"><div class="lh">${listDropdown("dashList")}<span class="lifebadge">\u{1F3C6} ${s.lifetime}<span class="ln">solved all-time</span></span></div></div>
+  ${banner}
+  <div class="stats">
+    <div class="stat solved"><div class="accent">✅</div><div class="n">${s.solved.length}${s.fixed?`<span style="font-size:16px;color:var(--mut)"> / ${s.denom}</span>`:""}</div><div class="l">${s.fixed?esc(s.label)+" progress":esc(s.label)}</div></div>
+    <div class="stat weak"><div class="accent">📝</div><div class="n">${s.missingTriggers.length}</div><div class="l">Solved, no trigger written</div></div>
+    <div class="stat due"><div class="accent">\u{1F551}</div><div class="n">${s.due.length}</div><div class="l">Due for review</div></div>
+    <div class="stat weak"><div class="accent">⚠️</div><div class="n">${s.weak.length}</div><div class="l">Weak spots</div></div>
+    <div class="stat streak"><div class="accent">\u{1F525}</div><div class="n">${streakDays()}</div><div class="l">Day streak</div></div>
+  </div>
+  <div class="card" style="margin-top:18px"><div class="hero">${hero}</div></div>
+  <div class="section-title">Due for review <span class="pill">${s.due.length}</span> <span style="font-weight:600;text-transform:none;letter-spacing:0;color:var(--mut2)">in ${esc(s.label)}</span></div>
+  ${duePrev}
+  ${insightsHTML()}
+  <div class="section-title">Progress by pattern <span style="font-weight:600;text-transform:none;letter-spacing:0;color:var(--mut2)">in ${esc(s.label)}</span></div>
+  <div class="patgrid">${pats}</div>`;
+}
+
+function insightsHTML(){
+  const fc=forecast();const mx=Math.max(1,...fc.map(d=>d.c));
+  const bars=fc.map((d,i)=>`<div class="fday"><div class="fc">${d.c||""}</div><div class="fbar ${i===0?"today":""}" style="height:${d.c/mx*100}%"></div><div class="fn">${i===0?"Now":esc(d.label)}</div></div>`).join("");
+  const wk=weakestPatterns();const wmax=Math.max(1,...wk.map(w=>w.bad));
+  const weak=wk.length?wk.map(w=>`<div class="weakrow"><span class="wn">${esc(w.pat)}</span><span class="wbar"><i style="width:${w.bad/wmax*100}%"></i></span><span class="wv">${w.bad} shaky</span></div>`).join(""):`<div class="hintbox">No weak spots logged yet — grade a few honestly and they'll surface here.</div>`;
+  const ind=independence();
+  const indHTML=ind?`<div class="indep"><div class="gring"><svg width="84" height="84" style="transform:rotate(-90deg)"><circle cx="42" cy="42" r="34" fill="none" stroke="var(--bg3)" stroke-width="9"/><circle cx="42" cy="42" r="34" fill="none" stroke="${ind.pct>=66?"var(--ok)":ind.pct>=40?"var(--med)":"var(--hard)"}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${2*Math.PI*34}" stroke-dashoffset="${2*Math.PI*34*(1-ind.pct/100)}"/></svg><div class="gmid">${ind.pct}%</div></div><div style="font-size:12.5px;color:var(--mut)">solved with little/no help across your last ${ind.n} graded sittings. Higher = more interview-ready.</div></div>`:`<div class="hintbox">Log <b>how much help</b> you needed when grading, and your independence score appears here.</div>`;
+  return `<div class="section-title">Insights</div><div class="ins">
+    <div class="insbox"><h4>\u{1F4C5} Next 7 days &mdash; reviews due</h4><div class="forecast">${bars}</div></div>
+    <div class="insbox"><h4>\u{1F9ED} Independence</h4>${indHTML}</div>
+    <div class="insbox" style="grid-column:1/-1"><h4>⚠️ Weakest patterns</h4><div class="weaklist">${weak}</div></div>
+  </div>`;
+}
+
+function qcard(p){const over=daysUntil(p.nextReview)<0;const q=p.quality?`<span class="tag q-${p.quality}">${p.quality}</span>`:"";return `<div class="qcard ${over?"over":""}"><span class="tag ${p.difficulty||"Medium"}">${p.difficulty||"?"}</span><div class="info"><div class="t">${esc(p.name)}</div><div class="d">${esc(p.pattern||"Other")} ${q?"&middot; "+q:""}</div></div><div class="when">${relDate(p.nextReview)}</div><button class="btn sm" data-open="${esc(p.slug)}">Review</button></div>`;}
+
+function viewReview(s){
+  const due=s.due.slice().sort((a,b)=>daysUntil(a.nextReview)-daysUntil(b.nextReview));
+  const weak=s.weak.filter(p=>!due.includes(p));
+  let h=`<div class="dashhead"><div class="lh"><h1 class="h" style="margin:0">Review queue</h1>${listDropdown("revList")}</div></div><p class="sub">What's due in <b>${esc(s.label)}</b> from what you've solved. Re-solve each from a blank file, then grade it.</p>`;
+  h+=`<div class="section-title">Due now <span class="pill">${due.length}</span></div>`;
+  h+= due.length?due.map(qcard).join(""):`<div class="empty"><div class="em">\u{1F389}</div>All caught up — nothing due in ${esc(s.label)}.</div>`;
+  if(weak.length){h+=`<div class="section-title">Weak spots <span class="pill">${weak.length}</span></div>`+weak.map(qcard).join("");}
+  return h;
+}
+
+let filt={q:"",pat:"all",status:"all",trigger:"all",diff:"all"};
+function viewProblems(){
+  let h=`<div class="dashhead"><div class="lh"><h1 class="h" style="margin:0">Problems</h1>${listDropdown("probList")}</div></div><p class="sub">Showing <b>${esc(LISTS[activeList].label)}</b>. Switch the list above; click any problem to open it.</p>
+  <div class="filters">
+    <input type="text" id="fq" placeholder="\u{1F50D} Search name / trigger / notes…" value="${esc(filt.q)}">
+    <select id="fpat"><option value="all">All patterns</option>${PATTERNS.map(p=>`<option value="${esc(p)}" ${filt.pat===p?"selected":""}>${esc(p)}</option>`).join("")}<option value="__other" ${filt.pat==="__other"?"selected":""}>Other (outside lists)</option></select>
+    <select id="fstatus"><option value="all">Any status</option><option value="not-started">Not started</option><option value="attempted">Attempted</option><option value="solved">Solved</option></select>
+    <select id="ftrigger"><option value="all">Any trigger status</option><option value="missing">Solved, no trigger written</option><option value="written">Trigger written</option></select>
+    <select id="fdiff"><option value="all">Any difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option></select>
+  </div>`;
+  let list=all().filter(inList);
+  const q=filt.q.toLowerCase();
+  if(q)list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.trigger||"").toLowerCase().includes(q)||(p.notes||"").toLowerCase().includes(q));
+  if(filt.pat==="__other")list=list.filter(p=>!p.pattern);
+  else if(filt.pat!=="all")list=list.filter(p=>p.pattern===filt.pat);
+  if(filt.status!=="all")list=list.filter(p=>p.status===filt.status);
+  if(filt.trigger==="missing")list=list.filter(p=>p.status==="solved"&&!(p.trigger||"").trim());
+  else if(filt.trigger==="written")list=list.filter(p=>(p.trigger||"").trim());
+  if(filt.diff!=="all")list=list.filter(p=>p.difficulty===filt.diff);
+  list.sort((a,b)=>(a.pattern?0:1)-(b.pattern?0:1)||a.order-b.order||a.seq-b.seq||a.name.localeCompare(b.name));
+  const total=list.length;
+  if(!total)return h+`<div class="empty"><div class="em">\u{1F50E}</div>No problems match.${(activeList==="solved"||activeList==="all")&&!isSynced()?"<br>Run <b>Sync</b> to pull your full problem list.":""}</div>`;
+  const CAP=400;let capped=false;if(total>CAP){list=list.slice(0,CAP);capped=true;}
+  const groups=[];list.forEach(p=>{const k=p.pattern||"Other (outside lists)";if(!groups.includes(k))groups.push(k);});
+  for(const pat of groups){
+    const items=list.filter(p=>(p.pattern||"Other (outside lists)")===pat);
+    if(pat.startsWith("Other")){h+=`<div class="grouphdr">${pat} <span class="gfrac">${items.length}</span></div>`;}
+    else{const o=patStat(pat);h+=`<div class="grouphdr">${esc(pat)} <span class="gbar"><i style="width:${o.t?o.s/o.t*100:0}%"></i></span> <span class="gfrac">${o.s}/${o.t}</span></div>`;}
+    h+=items.map(rowHTML).join("");
+  }
+  if(capped)h+=`<div class="hintbox" style="margin-top:12px">Showing first ${CAP} of ${total}. Use search to narrow.</div>`;
+  return h;
+}
+function rowHTML(p){
+  const q=p.quality?`<span class="tag q-${p.quality}">${p.quality}</span>`:"";
+  let nr="";if(p.status==="solved"&&p.nextReview){const d=daysUntil(p.nextReview);nr=`<span class="tag ${d<=0?"due":"soon"}">${relDate(p.nextReview)}</span>`;}
+  const note=((p.notes||"").trim())?`<span class="tag note">\u{1F4DD}</span>`:"";
+  const b75=(activeList!=="blind75"&&p.b75)?`<span class="tag l75">B75</span>`:"";
+  const trig=p.trigger?`<span class="trig">\u{1F511} ${esc(p.trigger)}</span>`:`<span class="trig" style="opacity:.5">${p.status==="not-started"?"not started":"no trigger yet"}</span>`;
+  return `<div class="row" data-open="${esc(p.slug)}"><span class="dot ${p.status}"></span><span class="nm">${esc(p.name)}</span>${trig}<span class="meta">${b75}${note}${q}${nr}<span class="tag ${p.difficulty||"Medium"}">${p.difficulty||"?"}</span><a class="ext" href="${p.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">↗</a></span></div>`;
+}
+
+/* drill */
+let drillQ=[], drillPos=0, drillRevealed=false, drillMode="trigger";
+function startDrill(){drillQ=drillSorted();drillPos=0;drillRevealed=false;}
+function viewDrill(){
+  const pool=drillPool();
+  if(!pool.length)return `<h1 class="h">Recall drill</h1><p class="sub">Active retrieval on your triggers — the heart of the method.</p><div class="empty"><div class="em">\u{1F9E0}</div>No triggers to drill yet.<br>Solve a problem, write its <b>trigger</b> (signal → technique), and it'll show up here.</div>`;
+  if(drillPos>=drillQ.length)return `<h1 class="h">Recall drill</h1><div class="empty"><div class="em">\u{1F3AF}</div>Session done — drilled ${drillQ.length} triggers.<br><button class="btn" data-restartdrill style="margin-top:14px">Go again</button></div>`;
+  const p=drillQ[drillPos];
+  const modeBtns=`<div class="filters" style="margin:0"><select class="listsel" id="drillModeSel"><option value="trigger" ${drillMode==="trigger"?"selected":""}>Recall the trigger</option><option value="pattern" ${drillMode==="pattern"?"selected":""}>Name the pattern</option></select></div>`;
+  let card;
+  if(!drillRevealed){
+    const prompt=drillMode==="trigger"?"What's the trigger &amp; approach?":"Which pattern / tool does this need?";
+    card=`<div class="flash"><div class="fq">${prompt}</div><div class="fname">${esc(p.name)}</div><div class="frow"><span class="tag ${p.difficulty||"Medium"}">${p.difficulty||"?"}</span><a href="${p.url}" target="_blank" rel="noopener" class="tag soon">open ↗</a></div><button class="btn ghostbtn" data-reveal style="margin-top:8px">Reveal answer</button></div>`;
+  }else{
+    const ans=drillMode==="trigger"?`<div class="ans"><div class="al">\u{1F511} Trigger</div><div class="av ${p.trigger?"":"empty"}">${p.trigger?esc(p.trigger):"(none written)"}</div></div>${p.notes?`<div class="ans"><div class="al">\u{1F9E0} Notes</div><div class="av">${esc(p.notes)}</div></div>`:""}`:`<div class="ans"><div class="al">Pattern</div><div class="av">${esc(p.pattern||"(outside the lists)")}</div></div><div class="ans"><div class="al">\u{1F511} Trigger</div><div class="av ${p.trigger?"":"empty"}">${p.trigger?esc(p.trigger):"(none)"}</div></div>`;
+    card=`<div class="flash"><div class="fq">${esc(p.name)}</div>${ans}<div class="drillbtns"><button class="dbtn no" data-dgrade="0">Forgot</button><button class="dbtn yes" data-dgrade="1">Recalled it</button></div></div>`;
+  }
+  return `<h1 class="h">Recall drill</h1><p class="sub">Retrieve from memory <i>before</i> revealing. "Forgot" schedules a re-solve.</p><div class="drillbar">${modeBtns}<span class="spacer"></span><span class="dprog">${drillPos+1} / ${drillQ.length}</span></div>${card}`;
+}
+
+/* modal */
+let openSlug=null, pendHelp="", timerInt=null;
+function clearTimer(){if(timerInt){clearInterval(timerInt);timerInt=null;}}
+function startTimer(mins){clearTimer();let left=mins*60;const disp=document.getElementById("tdisp");const nud=document.getElementById("tnudge");if(nud){nud.textContent="";nud.classList.remove("flash");}const upd=()=>{const m=Math.floor(left/60),s=left%60;if(disp)disp.textContent=m+":"+String(s).padStart(2,"0");if(left<=0){clearTimer();if(nud){nud.textContent="⏰ Time's up — escalate: nudge → editorial idea → code it. Don't grind.";nud.classList.add("flash");}}left--;};upd();timerInt=setInterval(upd,1000);}
+function openModal(slug){
+  openSlug=slug;pendHelp="";const p=get(slug);clearTimer();
+  const q=p.quality?`<span class="tag q-${p.quality}">${p.quality}</span>`:"";
+  const lists=[p.b75&&"Blind 75",p.lc75&&"LeetCode 75",p.n150&&"NeetCode 150",p.n250&&"NeetCode 250"].filter(Boolean).join(" · ")||"Outside the lists";
+  const nextInfo=p.nextReview?`Next review <b>${p.nextReview}</b> (${relDate(p.nextReview)})`:"Not scheduled yet";
+  const logRows=(p.log||[]).length?p.log.map(l=>`<tr><td>${l.date||""}</td><td class="o-${l.outcome}">${l.outcome||"—"}</td><td>${l.help||"—"}</td><td>${esc(l.note)}</td></tr>`).join(""):`<tr><td colspan="4" style="color:var(--mut)">No attempts logged yet.</td></tr>`;
+  const floorRows=FLOOR.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+  const m=document.getElementById("modal");
+  m.innerHTML=`<div class="modal"><div class="mhead"><button class="x" data-close>&times;</button><h2>${esc(p.name)}</h2>
+      <div class="row2"><span class="tag ${p.difficulty||"Medium"}">${p.difficulty||"?"}</span><span class="pill">${esc(p.pattern||"—")}</span>${q}<span class="pill">${lists}</span><a href="${p.url}" target="_blank" rel="noopener">Open on LeetCode ↗</a></div></div>
+    <div class="mbody">
+      <div><div class="fieldlabel">⏱️ Timebox — attempt cold, don't grind</div><div class="timer"><span class="tdisp" id="tdisp">--:--</span><button class="tbtn" data-timer="20">20m</button><button class="tbtn" data-timer="30">30m</button><button class="tbtn" data-timer="45">45m</button><span class="tnudge" id="tnudge"></span></div></div>
+      <div><div class="fieldlabel">\u{1F50E} Find the floor — predict the target before you code</div><details class="floorbox"><summary>constraint → target complexity</summary><table class="floor">${floorRows}</table></details><input type="text" id="f_predictedC" value="${esc(p.predictedC)}" placeholder="My predicted target, e.g. O(n log n)" style="margin-top:10px"></div>
+      <div><div class="fieldlabel">\u{1F9ED} How much help did you need?</div><div class="helps" id="helps"><button class="help" data-help="alone">Solved alone</button><button class="help" data-help="nudge">Needed a nudge</button><button class="help" data-help="editorial">Read editorial</button><button class="help" data-help="solution">Watched solution</button></div></div>
+      <div><div class="fieldlabel">✅ Log this sitting — grade honestly</div><div class="outcomes"><button class="ob miss" data-outcome="missed"><div class="ic">❌</div><div class="nm">Missed</div><div class="sub">+3 days</div></button><button class="ob scr" data-outcome="scrappy"><div class="ic">\u{1F62C}</div><div class="nm">Scrappy</div><div class="sub">+3 days</div></button><button class="ob cln" data-outcome="clean"><div class="ic">✨</div><div class="nm">Clean</div><div class="sub">+7→14→30→60</div></button></div><div class="nextline">${nextInfo}</div></div>
+      <div><div class="fieldlabel">\u{1F511} Trigger — signal → technique</div><textarea class="trigbox" id="f_trigger" rows="2" placeholder="When I see [signal] → reach for [technique]">${esc(p.trigger)}</textarea></div>
+      <div><div class="fieldlabel">\u{1F9E0} Idea / approach &amp; pitfalls</div><textarea id="f_notes" rows="4" placeholder="Core idea, where you got stuck, the trick you missed…">${esc(p.notes)}</textarea></div>
+      <div class="three"><div><div class="fieldlabel">Predicted</div><input type="text" id="f_predictedC2" value="${esc(p.predictedC)}" placeholder="O(n log n)"></div><div><div class="fieldlabel">Actual time</div><input type="text" id="f_timeC" value="${esc(p.timeC)}" placeholder="O(n)"></div><div><div class="fieldlabel">Space</div><input type="text" id="f_spaceC" value="${esc(p.spaceC)}" placeholder="O(1)"></div></div>
+      <div><div class="fieldlabel">\u{1F501} Review log</div><table class="logtable"><thead><tr><th>Date</th><th>Outcome</th><th>Help</th><th>Notes</th></tr></thead><tbody>${logRows}</tbody></table></div>
+      <div class="hintbox minor"><label>Status</label><select id="f_status" style="width:auto"><option value="not-started" ${p.status==="not-started"?"selected":""}>Not started</option><option value="attempted" ${p.status==="attempted"?"selected":""}>Attempted</option><option value="solved" ${p.status==="solved"?"selected":""}>Solved</option></select><label style="margin-left:8px">Next review</label><input type="date" id="f_next" value="${p.nextReview||""}" style="width:auto"><button class="ghost" data-reset style="margin-left:auto">Reset</button></div>
+    </div></div>`;
+  m.classList.remove("hidden");bindModal();
+}
+function closeModal(){clearTimer();document.getElementById("modal").classList.add("hidden");openSlug=null;}
+function saveField(id,key){const e=document.getElementById(id);if(e)mut(openSlug,p=>{p[key]=e.value;});}
+function bindModal(){
+  const m=document.getElementById("modal");
+  m.querySelector("[data-close]").onclick=closeModal;
+  m.querySelector("[data-reset]").onclick=()=>{if(confirm("Reset all your progress on this problem?")){delete state[openSlug];tomb[openSlug]=nowTs();saveTomb();save();openModal(openSlug);render();}};
+  m.querySelectorAll("[data-timer]").forEach(b=>b.onclick=()=>startTimer(+b.dataset.timer));
+  m.querySelectorAll("[data-help]").forEach(b=>b.onclick=()=>{pendHelp=b.dataset.help;m.querySelectorAll("[data-help]").forEach(x=>x.classList.toggle("on",x===b));});
+  m.querySelectorAll("[data-outcome]").forEach(b=>b.onclick=()=>{logOutcome(openSlug,b.dataset.outcome,pendHelp);openModal(openSlug);render();});
+  [["f_trigger","trigger"],["f_notes","notes"],["f_timeC","timeC"],["f_spaceC","spaceC"],["f_predictedC","predictedC"]].forEach(([id,k])=>{const e=document.getElementById(id);if(e){e.addEventListener("input",()=>saveField(id,k));e.addEventListener("blur",render);}});
+  const p2=document.getElementById("f_predictedC2");if(p2)p2.addEventListener("input",()=>{mut(openSlug,p=>{p.predictedC=p2.value;});const a=document.getElementById("f_predictedC");if(a)a.value=p2.value;});
+  document.getElementById("f_status").onchange=e=>{mut(openSlug,p=>{p.status=e.target.value;});render();};
+  document.getElementById("f_next").onchange=e=>{mut(openSlug,p=>{p.nextReview=e.target.value||null;});render();};
+}
+
+/* library */
+let libQ="";
+function viewLibrary(){
+  let items=all().filter(p=>(p.trigger||"").trim()||(p.notes||"").trim());
+  const q=libQ.toLowerCase();
+  if(q)items=items.filter(p=>p.name.toLowerCase().includes(q)||(p.trigger||"").toLowerCase().includes(q)||(p.notes||"").toLowerCase().includes(q)||(p.pattern||"").toLowerCase().includes(q));
+  let h=`<h1 class="h">Notes &amp; Triggers library</h1><p class="sub">Your personal playbook — every trigger and note you've written. ${all().filter(p=>(p.trigger||"").trim()).length} triggers collected.</p><div class="filters"><input type="text" id="libq" placeholder="\u{1F50D} Search your triggers &amp; notes…" value="${esc(libQ)}" style="min-width:280px"></div>`;
+  if(!items.length)return h+`<div class="empty"><div class="em">\u{1F4DD}</div>${libQ?"No matches.":"No notes yet. Open a problem and write a trigger — it'll collect here."}</div>`;
+  const groups=[];items.forEach(p=>{const k=p.pattern||"Other";if(!groups.includes(k))groups.push(k);});
+  groups.sort((a,b)=>{const ai=PATTERNS.indexOf(a),bi=PATTERNS.indexOf(b);return(ai<0?99:ai)-(bi<0?99:bi);});
+  for(const g of groups){const its=items.filter(p=>(p.pattern||"Other")===g);h+=`<div class="section-title">${esc(g)} <span class="pill">${its.length}</span></div>`;h+=its.map(p=>`<div class="libitem" data-open="${esc(p.slug)}"><div class="lt"><span class="tag ${p.difficulty||"Medium"}">${p.difficulty||"?"}</span><span class="lname">${esc(p.name)}</span>${p.quality?`<span class="tag q-${p.quality}">${p.quality}</span>`:""}</div>${p.trigger?`<div class="ltrig">\u{1F511} ${esc(p.trigger)}</div>`:""}${p.notes?`<div class="lnotes">${esc(p.notes)}</div>`:""}</div>`).join("");}
+  return h;
+}
+
+/* method */
+function viewMethod(){return `<div class="method">
+  <h1>How to grind LeetCode so it actually sticks</h1>
+  <blockquote><b>The one rule — retrieval beats recognition.</b> Watching the solution first <i>feels</i> like progress, but you retrieved nothing, so almost none of it sticks. In the interview you need recall. Every step below forces retrieval.</blockquote>
+  <h2>1 &middot; The loop when you're stuck</h2>
+  <ol class="loop"><li><b>Attempt cold, on a timebox.</b> ~20–30 min medium, ~45 hard — don't grind for hours. <i>(Timer's in each problem.)</i></li><li><b>Escalate by hints, not solutions.</b> Nudge → read only the <i>idea</i> & close it → code from that idea → full solution last.</li><li><b>Re-implement from a blank file.</b> Can't reproduce it 5 min after "getting it"? You recognised it, didn't learn it.</li><li><b>Extract the trigger, not the solution.</b> <code>see [signal] → reach for [technique]</code>. The problem is disposable; the trigger transfers.</li><li><b>Revisit on a schedule.</b> ~3 days, then 1–2 weeks. <i>(The app schedules this.)</i></li></ol>
+  <h2>2 &middot; The loop when you solve it</h2>
+  <p><b>Check it against the canonical solution</b> — passing ≠ optimal. <b>Extract the trigger anyway.</b> <b>Grade clean or scrappy honestly:</b> clean = saw it early, it flowed; scrappy = worked but unsure why — treat like a miss. <b>Space it lighter, but still space it.</b></p>
+  <h2>3 &middot; Before you write code: find the floor</h2>
+  <p>Reverse-engineer the target complexity from the constraints — the limit line is often the answer. <i>(Predict it on each problem.)</i></p>
+  <table><thead><tr><th>Constraint</th><th>Target</th></tr></thead><tbody><tr><td>n ≤ 20</td><td>backtracking / 2^n</td></tr><tr><td>n ≤ 100</td><td>O(n³)</td></tr><tr><td>n ≤ 1,000</td><td>O(n²)</td></tr><tr><td>n ≤ 100,000</td><td>O(n log n)</td></tr><tr><td>n ≤ 1,000,000</td><td>O(n) / O(n log n)</td></tr><tr><td>n ≥ 100,000,000</td><td>O(log n) / O(1)</td></tr></tbody></table>
+  <h2>4 &middot; Habits that compound</h2>
+  <p><b>Quality crushes quantity.</b> <b>Interleave</b> once you know a few patterns (that's <b>Drill → Name the pattern</b>). <b>Do it out loud</b> — narrate brute force, lower bound, approach.</p>
+  <blockquote><b>TL;DR:</b> struggle first within a timebox, escalate by hints not solutions, re-implement from a blank file, revisit on a schedule — and collect triggers, not solutions.</blockquote>
+</div>`;}
+
+/* binding */
+function bindView(){
+  document.querySelectorAll("[data-open]").forEach(e=>e.addEventListener("click",ev=>{if(ev.target.closest(".ext"))return;openModal(e.dataset.open);}));
+  document.querySelectorAll("[data-gopat]").forEach(e=>e.addEventListener("click",()=>{filt={q:"",pat:e.dataset.gopat,status:"all",trigger:"all",diff:"all"};setView("problems");}));
+  document.querySelectorAll("[data-listsel]").forEach(sel=>sel.onchange=()=>{activeList=sel.value;saveList();render();});
+  const bs=document.getElementById("bannerSync");if(bs)bs.onclick=openSync;
+  if(view==="problems"){
+    const fq=document.getElementById("fq");if(fq)fq.addEventListener("input",()=>{filt.q=fq.value;const at=fq.selectionStart;rerenderProblems();const nf=document.getElementById("fq");if(nf){nf.focus();nf.setSelectionRange(at,at);}});
+    const fp=document.getElementById("fpat");if(fp)fp.addEventListener("change",()=>{filt.pat=fp.value;rerenderProblems();});
+    const setf=(id,k)=>{const el=document.getElementById(id);if(el){el.value=filt[k];el.addEventListener("change",()=>{filt[k]=el.value;rerenderProblems();});}};
+    setf("fstatus","status");setf("ftrigger","trigger");setf("fdiff","diff");
+  }
+  if(view==="drill"){
+    const ms=document.getElementById("drillModeSel");if(ms)ms.onchange=()=>{drillMode=ms.value;drillRevealed=false;render();};
+    const rv=document.querySelector("[data-reveal]");if(rv)rv.onclick=()=>{drillRevealed=true;render();};
+    document.querySelectorAll("[data-dgrade]").forEach(b=>b.onclick=()=>{gradeDrill(drillQ[drillPos].slug,b.dataset.dgrade==="1");drillPos++;drillRevealed=false;render();});
+    const rs=document.querySelector("[data-restartdrill]");if(rs)rs.onclick=()=>{startDrill();render();};
+  }
+  if(view==="library"){const lq=document.getElementById("libq");if(lq)lq.addEventListener("input",()=>{libQ=lq.value;const at=lq.selectionStart;document.getElementById("app").innerHTML=viewLibrary();bindView();const nf=document.getElementById("libq");if(nf){nf.focus();nf.setSelectionRange(at,at);}});}
+}
+function rerenderProblems(){document.getElementById("app").innerHTML=viewProblems();bindView();}
+
+/* sync */
+function doSync(raw){
+  raw=(raw||"").trim();if(!raw)return{err:"Paste the copied text into the box first."};
+  let parsed;try{parsed=JSON.parse(raw);}catch(e){return{err:"That isn't valid JSON — copy the WHOLE page (⌘A then ⌘C)."};}
+  let solved=[],cat=[];
+  if(Array.isArray(parsed)){solved=parsed;}
+  else if(parsed.stat_status_pairs){
+    if(parsed.user_name==="")return{err:"You weren't logged in — log in to leetcode.com, reload that link, copy again."};
+    const LV={1:"Easy",2:"Medium",3:"Hard"};
+    parsed.stat_status_pairs.forEach(p=>{const sl=p.stat&&p.stat.question__title_slug;if(!sl)return;cat.push({s:sl,t:p.stat.question__title,d:LV[p.difficulty&&p.difficulty.level]||""});if(p.status==="ac")solved.push(sl);});
+  } else return{err:"Couldn't find your problem list in that text."};
+  if(cat.length)ingestCatalog(cat);
+  const added=ingestSolved(solved);
+  const a=all();const lifetime=a.filter(p=>p.status==="solved").length;
+  return{added,totalSolvedOnLC:solved.length,lifetime};
+}
+function openSync(){
+  const m=document.getElementById("modal");
+  m.innerHTML=`<div class="modal"><div class="mhead"><button class="x" data-close>&times;</button><h2>&#10227; Sync from LeetCode</h2><div class="row2"><span class="pill">your account</span><span style="color:var(--mut);font-size:12.5px">No password needed &mdash; runs in your browser</span></div></div>
+  <div class="mbody"><div class="hintbox" style="line-height:1.9"><b>Tip:</b> the launcher <b>Open LeetCode Tracker.command</b> does this automatically. To sync manually:<br><b>1.</b>&nbsp; Be <b>logged in</b> to LeetCode.<br><b>2.</b>&nbsp; Open &rarr; <a href="https://leetcode.com/api/problems/all/" target="_blank" rel="noopener"><b>leetcode.com/api/problems/all/</b></a><br><b>3.</b>&nbsp; Select all (<b>⌘A</b>), copy (<b>⌘C</b>).<br><b>4.</b>&nbsp; Paste below &amp; hit <b>Sync now</b>.</div>
+    <textarea id="syncBox" rows="5" placeholder="Paste the copied page here…"></textarea>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><button class="btn" data-dosync>Sync now</button><span id="syncMsg" style="font-size:13px;flex:1;min-width:160px"></span></div>
+    <div class="hintbox" style="font-size:11.5px;color:var(--mut2)">Reads which problems you've solved + the full catalog (so every list works). Your password never touches this app. Re-run anytime.</div></div></div>`;
+  m.classList.remove("hidden");m.querySelector("[data-close]").onclick=closeModal;
+  m.querySelector("[data-dosync]").onclick=()=>{const res=doSync(document.getElementById("syncBox").value);const el=document.getElementById("syncMsg");if(res.err){el.style.color="var(--hard)";el.textContent="⚠ "+res.err;return;}el.style.color="var(--ok)";el.innerHTML=`✅ Marked <b>${res.added}</b> new solved. Lifetime now <b>${res.lifetime}</b> (of ${res.totalSolvedOnLC} on LeetCode).`;render();};
+}
+
+/* export / import */
+function exportData(){const blob=new Blob([JSON.stringify({state,extraCat,tomb},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="leetcode-tracker-backup-"+today()+".json";a.click();}
+
+/* ---------------- cloud sync: secret GitHub gist ---------------- */
+const GCFG="lc-gist-cfg", TOMBKEY="lc-tomb", GFILE="leetcode-tracker-state.json";
+let gistCfg=null, tomb={}, syncStatus={s:"off",msg:""}, syncAt=null, pushTimer=null, syncing=false, pendingPush=false;
+
+function nowTs(){return new Date().toISOString();}
+function loadSyncCfg(){
+  try{gistCfg=JSON.parse(localStorage.getItem(GCFG)||"null");}catch(e){gistCfg=null;}
+  try{tomb=JSON.parse(localStorage.getItem(TOMBKEY)||"{}");}catch(e){tomb={};}
+}
+function saveSyncCfg(){if(gistCfg&&gistCfg.token&&gistCfg.gistId)localStorage.setItem(GCFG,JSON.stringify(gistCfg));else localStorage.removeItem(GCFG);}
+function saveTomb(){localStorage.setItem(TOMBKEY,JSON.stringify(tomb));}
+function syncOn(){return !!(gistCfg&&gistCfg.token&&gistCfg.gistId);}
+function deviceName(){const u=navigator.userAgent;if(/iPhone/.test(u))return"iPhone";if(/iPad/.test(u))return"iPad";if(/Android/.test(u))return"Android";if(/Mac/.test(u))return"Mac";if(/Windows/.test(u))return"Windows";return"browser";}
+
+/* --- merge: never lose work from either device --- */
+function pmTime(p){
+  if(!p)return 0;
+  if(p.mtime){const t=Date.parse(p.mtime);if(t)return t;}
+  const d=p.lastReviewed||p.lastDrilled||p.firstSolved;
+  if(d){const t=Date.parse(d+"T12:00:00Z");if(t)return t;}
+  return 0;
+}
+function logKey(l){return [l.date||"",l.outcome||"",l.help||"",String(l.note||"").slice(0,90)].join("|");}
+function unionLog(a,b){
+  const seen={},out=[];
+  (a||[]).concat(b||[]).forEach(function(l){if(!l)return;const k=logKey(l);if(!seen[k]){seen[k]=1;out.push(l);}});
+  out.sort(function(x,y){return String(y.date||"").localeCompare(String(x.date||""));});
+  return out;
+}
+function pickDate(x,y,newest){
+  const v=[x,y].filter(Boolean).sort();
+  if(!v.length)return null;
+  return newest?v[v.length-1]:v[0];
+}
+function mergeProblem(a,b){
+  if(!a)return b;
+  if(!b)return a;
+  const ta=pmTime(a), tb=pmTime(b);
+  const w=ta>=tb?a:b, l=ta>=tb?b:a;
+  const out=Object.assign({},l,w);
+  /* written text is precious: never let a blank field overwrite a filled one */
+  ["trigger","notes","timeC","spaceC","predictedC"].forEach(function(k){
+    if(!String(w[k]||"").trim()&&String(l[k]||"").trim())out[k]=l[k];
+  });
+  out.attempts=Math.max(a.attempts||0,b.attempts||0);
+  out.reviewCount=Math.max(a.reviewCount||0,b.reviewCount||0);
+  out.firstSolved=pickDate(a.firstSolved,b.firstSolved,false);
+  out.lastReviewed=pickDate(a.lastReviewed,b.lastReviewed,true);
+  out.lastDrilled=pickDate(a.lastDrilled,b.lastDrilled,true);
+  out.log=unionLog(a.log,b.log);
+  out.mtime=new Date(Math.max(ta,tb)||Date.now()).toISOString();
+  return out;
+}
+function mergeStates(a,b){
+  const out={},keys={};
+  Object.keys(a||{}).forEach(function(k){keys[k]=1;});
+  Object.keys(b||{}).forEach(function(k){keys[k]=1;});
+  Object.keys(keys).forEach(function(s){out[s]=mergeProblem((a||{})[s],(b||{})[s]);});
+  return out;
+}
+function mergeTomb(a,b){
+  const out=Object.assign({},a||{});
+  Object.keys(b||{}).forEach(function(s){if(!out[s]||(Date.parse(b[s])||0)>(Date.parse(out[s])||0))out[s]=b[s];});
+  const cut=Date.now()-90*864e5;
+  Object.keys(out).forEach(function(s){if((Date.parse(out[s])||0)<cut)delete out[s];});
+  return out;
+}
+function applyTomb(st,tb){
+  Object.keys(tb||{}).forEach(function(s){
+    const t=Date.parse(tb[s])||0;
+    if(st[s]&&pmTime(st[s])<=t)delete st[s];
+  });
+  return st;
+}
+
+/* --- transport --- */
+function ghHeaders(){return {"Authorization":"Bearer "+gistCfg.token,"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};}
+async function gistRead(){
+  const r=await fetch("https://api.github.com/gists/"+encodeURIComponent(gistCfg.gistId),{method:"GET",headers:ghHeaders(),cache:"no-store"});
+  if(r.status===401)throw new Error("token rejected (401) - check it has the gist scope");
+  if(r.status===403)throw new Error("forbidden (403) - token lacks the gist scope");
+  if(r.status===404)throw new Error("gist not found (404) - check the gist ID");
+  if(!r.ok)throw new Error("GitHub returned "+r.status);
+  const j=await r.json();
+  const f=j.files&&j.files[GFILE];
+  if(!f)return null;
+  let c=f.content;
+  if(f.truncated&&f.raw_url){const rr=await fetch(f.raw_url,{cache:"no-store"});c=await rr.text();}
+  if(!c||!String(c).trim())return null;
+  try{return JSON.parse(c);}catch(e){throw new Error("remote file is not valid JSON");}
+}
+async function gistWrite(payload){
+  const files={};files[GFILE]={content:JSON.stringify(payload,null,1)};
+  const r=await fetch("https://api.github.com/gists/"+encodeURIComponent(gistCfg.gistId),{method:"PATCH",headers:ghHeaders(),body:JSON.stringify({files:files})});
+  if(!r.ok)throw new Error("push failed - GitHub returned "+r.status);
+}
+
+/* --- orchestration --- */
+function paintSync(){
+  const dot=document.getElementById("syncDot"), lbl=document.getElementById("syncLbl");
+  if(!dot||!lbl)return;
+  dot.className="syncdot "+(syncStatus.s==="off"?"":syncStatus.s);
+  let t="Cloud";
+  if(syncStatus.s==="busy")t="Syncing";
+  else if(syncStatus.s==="err")t="Sync error";
+  else if(syncStatus.s==="ok")t=syncAt?"Synced "+shortAgo(syncAt):"Synced";
+  lbl.textContent=t;
+  const btn=document.getElementById("cloudBtn");
+  if(btn)btn.title=syncStatus.msg||(syncOn()?"Cloud sync on":"Cloud sync not set up");
+}
+function shortAgo(ts){
+  const s=Math.round((Date.now()-ts)/1000);
+  if(s<60)return "just now";
+  if(s<3600)return Math.round(s/60)+"m ago";
+  if(s<86400)return Math.round(s/3600)+"h ago";
+  return Math.round(s/86400)+"d ago";
+}
+function setSync(s,msg){syncStatus={s:s,msg:msg||""};if(s==="ok")syncAt=Date.now();paintSync();}
+function scheduleSync(){
+  if(!syncOn())return;
+  if(pushTimer)clearTimeout(pushTimer);
+  pushTimer=setTimeout(function(){pushTimer=null;cloudSync();},1500);
+}
+async function cloudSync(){
+  if(!syncOn())return {ok:false,err:"not configured"};
+  if(syncing){pendingPush=true;return {ok:false,err:"busy"};}
+  syncing=true;setSync("busy");
+  let res={ok:true};
+  try{
+    const remote=await gistRead();
+    let merged=state, mtomb=tomb, catChanged=false;
+    if(remote&&remote.state){
+      merged=mergeStates(state,remote.state);
+      mtomb=mergeTomb(tomb,remote.tomb);
+      merged=applyTomb(merged,mtomb);
+      if(remote.extraCat){
+        const before=Object.keys(extraCat).length;
+        extraCat=Object.assign({},remote.extraCat,extraCat);
+        catChanged=Object.keys(extraCat).length!==before;
+      }
+    }
+    const changed=JSON.stringify(merged)!==JSON.stringify(state)||catChanged;
+    state=merged;tomb=mtomb;
+    localStorage.setItem(KEY,JSON.stringify(state));
+    saveTomb();saveCat();
+    await gistWrite({v:1,updatedAt:nowTs(),device:deviceName(),state:state,extraCat:extraCat,tomb:tomb});
+    setSync("ok");
+    if(changed){buildCat();render();}
+  }catch(e){
+    res={ok:false,err:String((e&&e.message)||e)};
+    setSync("err",res.err);
+  }finally{
+    syncing=false;
+  }
+  if(pendingPush){pendingPush=false;scheduleSync();}
+  return res;
+}
+
+function openCloud(){
+  const m=document.getElementById("modal");
+  const cfg=gistCfg||{token:"",gistId:""};
+  m.innerHTML=`<div class="modal"><div class="mhead"><button class="x" data-close>&times;</button><h2>&#9729;&#65039; Cloud sync</h2><div class="row2"><span class="pill">${syncOn()?"on":"not set up"}</span><span style="color:var(--mut);font-size:12.5px">Keeps this device and your iPhone on one dataset</span></div></div>
+  <div class="mbody">
+    <div class="hintbox" style="line-height:1.85"><b>One-time setup, per device.</b><br>
+    <b>1.</b>&nbsp; On GitHub: <b>Settings &rarr; Developer settings &rarr; Personal access tokens &rarr; Tokens (classic) &rarr; Generate new token</b>.<br>
+    <b>2.</b>&nbsp; Tick <b>only</b> the <code>gist</code> scope. Nothing else.<br>
+    <b>3.</b>&nbsp; Paste the token and the gist ID below, then <b>Save &amp; sync</b>.<br>
+    <span style="color:var(--mut2)">The token is stored only in this browser and is sent only to api.github.com. Revoke it anytime on GitHub.</span></div>
+    <div><div class="fieldlabel">Gist ID</div><input type="text" id="gistId" value="${esc(cfg.gistId)}" placeholder="the long hex id from the gist URL" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div><div class="fieldlabel">Token (gist scope only)</div><input type="password" id="gistTok" value="${esc(cfg.token)}" placeholder="ghp_..." autocomplete="off"></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn" data-savecloud>Save &amp; sync</button>
+      <button class="btn ghostbtn" data-syncnow>Sync now</button>
+      <button class="btn ghostbtn" data-forget>Remove token</button>
+    </div>
+    <div id="cloudMsg" style="font-size:13px;min-height:18px"></div>
+    <div class="hintbox" style="font-size:11.5px;color:var(--mut2)">Merging is per-problem and additive: grades, triggers and review logs from both devices are combined, so an offline session on either one is never lost.</div>
+  </div></div>`;
+  m.classList.remove("hidden");
+  m.querySelector("[data-close]").onclick=closeModal;
+  const msg=function(txt,good){const el=document.getElementById("cloudMsg");if(!el)return;el.style.color=good?"var(--ok)":"var(--hard)";el.innerHTML=txt;};
+  const run=async function(){
+    msg("Syncing...",true);
+    const r=await cloudSync();
+    if(r.ok)msg("&#9989; Synced as <b>"+deviceName()+"</b>. "+Object.keys(state).length+" problems tracked.",true);
+    else msg("&#9888; "+esc(r.err),false);
+  };
+  m.querySelector("[data-savecloud]").onclick=async function(){
+    const id=document.getElementById("gistId").value.trim();
+    const tk=document.getElementById("gistTok").value.trim();
+    if(!id||!tk){msg("&#9888; Both the gist ID and the token are needed.",false);return;}
+    gistCfg={gistId:id,token:tk};saveSyncCfg();
+    await run();
+  };
+  m.querySelector("[data-syncnow]").onclick=run;
+  m.querySelector("[data-forget]").onclick=function(){
+    if(!confirm("Remove the token from this device? Your data stays, but this device stops syncing."))return;
+    gistCfg=null;saveSyncCfg();setSync("off");msg("Token removed from this browser.",true);
+  };
+}
+
+/* boot */
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>setView(t.dataset.view));
+document.getElementById("syncBtn").onclick=openSync;
+document.getElementById("cloudBtn").onclick=openCloud;
+document.getElementById("exportBtn").onclick=exportData;
+document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();
+document.getElementById("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);state=d.state||d;if(d.extraCat){extraCat=d.extraCat;saveCat();}if(d.tomb){tomb=mergeTomb(tomb,d.tomb);saveTomb();}save();buildCat();render();alert("Imported ✅");}catch(err){alert("Couldn't read that file.");}};r.readAsText(f);};
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+loadSyncCfg();
+load();buildCat();
+if(window.__LC_CATALOG__)ingestCatalog(window.__LC_CATALOG__);
+if(window.__LC_SOLVED__&&Array.isArray(window.__LC_SOLVED__))ingestSolved(window.__LC_SOLVED__);
+render();
+paintSync();
+if(syncOn()){setSync("busy");cloudSync();}
+setInterval(function(){if(syncStatus.s==="ok")paintSync();},60000);
+window.addEventListener("focus",function(){if(syncOn()&&!syncing)cloudSync();});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&syncOn()&&!syncing)cloudSync();});
+</script>
+</body>
+</html>
